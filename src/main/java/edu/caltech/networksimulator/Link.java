@@ -10,12 +10,18 @@ package edu.caltech.networksimulator;
 public class Link extends NetworkComponent {
 	
 	private NetworkComponent end1, end2;
+	
+	long capacity, delayMS, bufferSize;
 
 	/**
 	 * @param name
+	 * @param bufferSize 
 	 */
-	public Link(String name, int capacity, long delayMS) {
+	public Link(String name, int capacity, long delayMS, long bufferSize) {
 		super(name);
+		this.capacity = capacity;
+		this.delayMS = delayMS;
+		this.bufferSize = bufferSize;
 	}
 	
 	public void setConnection(NetworkComponent comp) {
