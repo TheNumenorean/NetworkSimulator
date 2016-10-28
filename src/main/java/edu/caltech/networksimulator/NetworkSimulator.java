@@ -31,11 +31,15 @@ public class NetworkSimulator implements Runnable {
 		NetworkSimulator sim = new NetworkSimulator();
 
 		Link l = new Link("Link1", 10000000, 10, 64000);
+		
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
-		//source.addIntent();
+		source.setIP(1);
 		sim.addComponent(source);
-		sim.addComponent(new Host("Host2", l, 2000));
+		
+		Host sink = new Host("Host2", l, 2000);
+		sink.setIP(2);
+		sim.addComponent(sink);
 
 		sim.run();
 
