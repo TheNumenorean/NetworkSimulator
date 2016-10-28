@@ -13,6 +13,9 @@ public class Packet {
 	private long size;
 	private long src;
 	private long dest;
+	
+	private String payload;
+	private String meta;
 
 	/**
 	 * 
@@ -27,23 +30,20 @@ public class Packet {
 	}
 	
 	
-	
-	public void setMeta(String header) {
-		
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 	
 	public String getMeta() {
-		return null;
-		
+		return meta;
 	}
 	
 	public void setPayload(String payload) {
-		
+		this.payload = payload;
 	}
 	
 	public String getPayload() {
-		return null;
-		
+		return payload;
 	}
 
 	/**
