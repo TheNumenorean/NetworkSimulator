@@ -10,9 +10,12 @@ package edu.caltech.networksimulator;
 public abstract class NetworkComponent implements Runnable {
 	
 	private String name;
+	
+	protected boolean stop;
 
 	public NetworkComponent(String name){
 		this.name = name;
+		stop = false;
 	}
 	
 	/**
@@ -25,6 +28,17 @@ public abstract class NetworkComponent implements Runnable {
 	
 	public abstract void offerPacket(Packet p);
 	
+	/** 
+	 * Get whether this component has completed everything it wants to do.
+	 * @return
+	 */
+	public abstract boolean finished();
 	
+	/**
+	 * Cause this component to gracefully stop
+	 */
+	public void stop() {
+		stop = true;
+	}
 
 }
