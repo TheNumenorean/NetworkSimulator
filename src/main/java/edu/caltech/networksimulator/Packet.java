@@ -5,7 +5,7 @@
 package edu.caltech.networksimulator;
 
 /**
- * @author Francesco
+ * @authors Francesco, Carly
  *
  */
 public class Packet {

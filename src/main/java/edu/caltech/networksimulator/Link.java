@@ -4,7 +4,7 @@
 package edu.caltech.networksimulator;
 
 /**
- * @author Francesco
+ * @authors Francesco, Carly
  *
  */
 public class Link extends NetworkComponent {
@@ -59,6 +59,12 @@ public class Link extends NetworkComponent {
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
+		try {
+			Thread.sleep(delayMS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		if (end1 != n) {
 			end1.offerPacket(p, this);
 		} else if (end2 != n) {
