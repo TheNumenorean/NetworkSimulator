@@ -11,6 +11,8 @@ public class Host extends NetworkComponent implements Addressable  {
 	
 	private long macAddress;
 	private long ip;
+	private Packet packet;
+	private Link link;
 
 	/**
 	 * @param name
@@ -18,6 +20,7 @@ public class Host extends NetworkComponent implements Addressable  {
 	public Host(String name, Link l, long physicalAddr) {
 		super(name);
 		l.setConnection(this);
+		this.link = l;
 		macAddress = physicalAddr;
 	}
 
@@ -28,7 +31,10 @@ public class Host extends NetworkComponent implements Addressable  {
 	public void run() {
 		
 		while(!super.stop) {
-			
+			if (packet != null) { // only send one packet
+				link.offerPacket(packet);
+				packet = null;
+			}
 		}
 
 	}
@@ -38,7 +44,7 @@ public class Host extends NetworkComponent implements Addressable  {
 	 */
 	@Override
 	public void offerPacket(Packet p) {
-		// TODO Auto-generated method stub
+		System.out.println("Host " + getIP() + " Recieved packet p: " + p);
 
 	}
 
@@ -59,6 +65,11 @@ public class Host extends NetworkComponent implements Addressable  {
 	
 	public void setIP(long ip) {
 		this.ip = ip;
+	}
+	
+	public void addPacket(Packet p) {
+		System.out.println("Recieved instruction to send packet p: " + p);
+		this.packet = p;
 	}
 
 }

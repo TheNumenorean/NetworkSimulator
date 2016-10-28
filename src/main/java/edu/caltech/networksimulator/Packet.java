@@ -1,3 +1,4 @@
+
 /**
  * 
  */
@@ -87,6 +88,8 @@ public class Packet {
 		this.size = size;
 	}
 	
-	
+	public String toString() {
+		return "Meta: " + getMeta() + "\t Payload: " + getPayload();
+	}
 
 }
