@@ -4,7 +4,7 @@
 package edu.caltech.networksimulator;
 
 /**
- * @author Francesco
+ * @authors Francesco, Carly
  *
  */
 public abstract class NetworkComponent implements Runnable {
@@ -26,7 +26,7 @@ public abstract class NetworkComponent implements Runnable {
 		return name;
 	}
 	
-	public abstract void offerPacket(Packet p);
+	public abstract void offerPacket(Packet p, NetworkComponent n);
 	
 	/** 
 	 * Get whether this component has completed everything it wants to do.

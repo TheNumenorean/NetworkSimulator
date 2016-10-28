@@ -4,7 +4,7 @@
 package edu.caltech.networksimulator;
 
 /**
- * @author Francesco
+ * @authors Francesco, Carly
  *
  */
 public class Host extends NetworkComponent implements Addressable  {
@@ -31,10 +31,12 @@ public class Host extends NetworkComponent implements Addressable  {
 	public void run() {
 		
 		while(!super.stop) {
-			if (packet != null) { // only send one packet
-				link.offerPacket(packet);
-				packet = null;
+			if (packet != null) {
+				for (int i = 0; i < 5; i++) { // send a manageable number of packets
+					link.offerPacket(packet, this);
+				}
 			}
+			packet = null;
 		}
 
 	}
@@ -43,9 +45,8 @@ public class Host extends NetworkComponent implements Addressable  {
 	 * @see edu.caltech.networksimulator.NetworkComponent#offerPacket(edu.caltech.networksimulator.Packet)
 	 */
 	@Override
-	public void offerPacket(Packet p) {
-		System.out.println("Host " + getIP() + " Recieved packet p: " + p);
-
+	public void offerPacket(Packet p, NetworkComponent n) {
+		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
 	}
 
 	@Override
@@ -68,7 +69,7 @@ public class Host extends NetworkComponent implements Addressable  {
 	}
 	
 	public void addPacket(Packet p) {
-		System.out.println("Recieved instruction to send packet p: " + p);
+		System.out.println(getComponentName() + " recieved instruction to send packet p: " + p);
 		this.packet = p;
 	}
 

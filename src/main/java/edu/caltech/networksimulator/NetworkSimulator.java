@@ -35,8 +35,8 @@ public class NetworkSimulator implements Runnable {
 
 		NetworkSimulator sim = new NetworkSimulator();
 
-		Link l = new Link("Link1", 10000000, 10, 64000);
-
+		Link l = new Link("Link1", 10000000, 1000, 64000);
+		
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
