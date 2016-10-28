@@ -49,6 +49,10 @@ public class NetworkSimulator implements Runnable {
 
 	}
 
+	/**
+	 * Add a network component to this simulation
+	 * @param comp The component to add
+	 */
 	public void addComponent(NetworkComponent comp) {
 		networkComponents.add(comp);
 	}
