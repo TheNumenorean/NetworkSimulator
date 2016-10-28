@@ -35,6 +35,7 @@ public class NetworkSimulator implements Runnable {
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
+		source.addPacket(new Packet(32000, 1, 2));
 		sim.addComponent(source);
 		
 		Host sink = new Host("Host2", l, 2000);
