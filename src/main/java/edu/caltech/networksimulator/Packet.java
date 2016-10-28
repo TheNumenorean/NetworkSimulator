@@ -16,6 +16,10 @@ public class Packet {
 		
 	}
 	
+	public String toString() {
+		return "Meta: " + getMeta() + "\t Payload: " + getPayload();
+	}
+	
 	public void setMeta(String header) {
 		
 	}

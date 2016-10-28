@@ -52,13 +52,14 @@ public class Link extends NetworkComponent {
 	 */
 	@Override
 	public void offerPacket(Packet p) {
-		// TODO Auto-generated method stub
-
+		System.out.println("Recieved packet p: " + p);
+		end1.offerPacket(p);
+		end2.offerPacket(p);
 	}
 
 	@Override
 	public boolean finished() {
-		// Always true for a link
+		// True for a link that has nothing in its buffer.
 		return true;
 	}
 
