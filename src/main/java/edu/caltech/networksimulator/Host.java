@@ -32,7 +32,7 @@ public class Host extends NetworkComponent implements Addressable  {
 		
 		while(!super.stop) {
 			if (packet != null) { // only send one packet
-				link.offerPacket(packet);
+				link.offerPacket(packet, this);
 				packet = null;
 			}
 		}
@@ -43,9 +43,8 @@ public class Host extends NetworkComponent implements Addressable  {
 	 * @see edu.caltech.networksimulator.NetworkComponent#offerPacket(edu.caltech.networksimulator.Packet)
 	 */
 	@Override
-	public void offerPacket(Packet p) {
-		System.out.println("Host " + getIP() + " Recieved packet p: " + p);
-
+	public void offerPacket(Packet p, NetworkComponent n) {
+		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
 	}
 
 	@Override
@@ -68,7 +67,7 @@ public class Host extends NetworkComponent implements Addressable  {
 	}
 	
 	public void addPacket(Packet p) {
-		System.out.println("Recieved instruction to send packet p: " + p);
+		System.out.println(getComponentName() + " recieved instruction to send packet p: " + p);
 		this.packet = p;
 	}
 
