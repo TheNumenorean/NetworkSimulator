@@ -3,6 +3,8 @@
  */
 package edu.caltech.networksimulator;
 
+import java.util.PriorityQueue;
+
 /**
  * @authors Francesco, Carly
  *
@@ -10,8 +12,12 @@ package edu.caltech.networksimulator;
 public class Link extends NetworkComponent {
 
 	private NetworkComponent end1, end2;
-
-	long capacity, delayMS, bufferSize;
+	
+	private PriorityQueue<Sendable> queue;
+	
+	private long capacity, delayMS, bufferSize;
+	
+	
 
 	/**
 	 * @param name
@@ -22,6 +28,8 @@ public class Link extends NetworkComponent {
 		this.capacity = capacity;
 		this.delayMS = delayMS;
 		this.bufferSize = bufferSize;
+		
+		queue = new PriorityQueue<Sendable>();
 	}
 
 	/**
@@ -45,11 +53,16 @@ public class Link extends NetworkComponent {
 	public void run() {
 		while (!super.receivedStop()) {
 			
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			
+			if(!queue.isEmpty()) {
+				
+				
+				
+			} else {
+				try {
+					queue.wait();
+				} catch (InterruptedException e) {
+				}
 			}
 
 		}
@@ -66,17 +79,8 @@ public class Link extends NetworkComponent {
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
-		try {
-			Thread.sleep(delayMS);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		if (end1.equals(n)) {
-			end2.offerPacket(p, this);
-		} else {
-			end1.offerPacket(p, this);
-		}
+		queue.add(new Sendable(System.currentTimeMillis() + delayMS, p, end1.equals(n) ? end2 : end1));
+
 	}
 
 	@Override
@@ -88,6 +92,24 @@ public class Link extends NetworkComponent {
 	@Override
 	public boolean equals(Object o) {
 		return o instanceof Link && ((Link)o).end1.equals(end1) && ((Link)o).end2.equals(end2);
+	}
+	
+	private class Sendable implements Comparable<Sendable> {
+		
+		public long sendAt;
+		public Packet packet;
+		public NetworkComponent to;
+		
+		public Sendable(long sendAt, Packet packet, NetworkComponent to) {
+			this.sendAt = sendAt;
+			this.packet = packet;
+			this.to= to;
+		}
+
+		@Override
+		public int compareTo(Sendable o) {
+			return (int) (sendAt - o.sendAt);
+		}
 	}
 
 }
