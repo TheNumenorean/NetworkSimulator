@@ -12,12 +12,10 @@ import java.util.PriorityQueue;
 public class Link extends NetworkComponent {
 
 	private NetworkComponent end1, end2;
-	
+
 	private PriorityQueue<Sendable> queue;
-	
+
 	private long capacity, delayMS, bufferSize;
-	
-	
 
 	/**
 	 * @param name
@@ -28,7 +26,7 @@ public class Link extends NetworkComponent {
 		this.capacity = capacity;
 		this.delayMS = delayMS;
 		this.bufferSize = bufferSize;
-		
+
 		queue = new PriorityQueue<Sendable>();
 	}
 
@@ -52,16 +50,31 @@ public class Link extends NetworkComponent {
 	@Override
 	public void run() {
 		while (!super.receivedStop()) {
-			
-			
-			if(!queue.isEmpty()) {
-				
-				
-				
+
+			if (!queue.isEmpty()) {
+
+				synchronized (queue) {
+					
+					Sendable next = queue.peek();
+					long timeToSend = next.sendAt - System.currentTimeMillis();
+
+					if (timeToSend < 1) {
+						next.to.offerPacket(next.packet, this);
+						queue.poll();
+						continue;
+					}
+
+					try {
+						queue.wait(timeToSend);
+					} catch (InterruptedException e) {}
+				}
+
 			} else {
-				try {
-					queue.wait();
-				} catch (InterruptedException e) {
+
+				synchronized (queue) {
+					try {
+						queue.wait();
+					} catch (InterruptedException e) {}
 				}
 			}
 
@@ -79,31 +92,33 @@ public class Link extends NetworkComponent {
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
-		queue.add(new Sendable(System.currentTimeMillis() + delayMS, p, end1.equals(n) ? end2 : end1));
 
+		synchronized (queue) {
+			queue.add(new Sendable(System.currentTimeMillis() + delayMS, p, end1.equals(n) ? end2 : end1));
+			queue.notifyAll();
+		}
 	}
 
 	@Override
 	public boolean finished() {
-		// True for a link that has nothing in its buffer.
-		return true;
+		return queue.isEmpty();
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof Link && ((Link)o).end1.equals(end1) && ((Link)o).end2.equals(end2);
+		return o instanceof Link && ((Link) o).end1.equals(end1) && ((Link) o).end2.equals(end2);
 	}
-	
+
 	private class Sendable implements Comparable<Sendable> {
-		
+
 		public long sendAt;
 		public Packet packet;
 		public NetworkComponent to;
-		
+
 		public Sendable(long sendAt, Packet packet, NetworkComponent to) {
 			this.sendAt = sendAt;
 			this.packet = packet;
-			this.to= to;
+			this.to = to;
 		}
 
 		@Override
