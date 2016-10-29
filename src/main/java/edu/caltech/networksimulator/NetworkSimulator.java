@@ -40,7 +40,7 @@ public class NetworkSimulator implements Runnable {
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
-		Packet p = new Packet(32000, 1, 2);
+		Packet p = new Packet(1, 2);
 		p.setMeta("Plaintext");
 		p.setPayload("Give me all your chocolate or else");
 		source.addPacket(p);
