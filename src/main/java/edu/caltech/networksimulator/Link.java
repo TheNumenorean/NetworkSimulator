@@ -43,7 +43,14 @@ public class Link extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
-		while (!super.stop) {
+		while (!super.receivedStop()) {
+			
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		}
 
@@ -62,15 +69,13 @@ public class Link extends NetworkComponent {
 		try {
 			Thread.sleep(delayMS);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if (end1 != n) {
-			end1.offerPacket(p, this);
-		} else if (end2 != n) {
+		
+		if (end1.equals(n)) {
 			end2.offerPacket(p, this);
 		} else {
-			System.out.println(n.getComponentName() + " is not connected to either end of " + getComponentName()); 
+			end1.offerPacket(p, this);
 		}
 	}
 
@@ -78,6 +83,11 @@ public class Link extends NetworkComponent {
 	public boolean finished() {
 		// True for a link that has nothing in its buffer.
 		return true;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Link && ((Link)o).end1.equals(end1) && ((Link)o).end2.equals(end2);
 	}
 
 }

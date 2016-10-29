@@ -30,7 +30,7 @@ public class Host extends NetworkComponent implements Addressable  {
 	@Override
 	public void run() {
 		
-		while(!super.stop) {
+		while(!super.receivedStop()) {
 			if (packet != null) {
 				for (int i = 0; i < 5; i++) { // send a manageable number of packets
 					link.offerPacket(packet, this);
@@ -71,6 +71,11 @@ public class Host extends NetworkComponent implements Addressable  {
 	public void addPacket(Packet p) {
 		System.out.println(getComponentName() + " recieved instruction to send packet p: " + p);
 		this.packet = p;
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof Host && ((Host)o).getMACAddress() == macAddress;
 	}
 
 }

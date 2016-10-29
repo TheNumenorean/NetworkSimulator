@@ -11,7 +11,7 @@ public abstract class NetworkComponent implements Runnable {
 	
 	private String name;
 	
-	protected boolean stop;
+	private boolean stop;
 
 	public NetworkComponent(String name){
 		this.name = name;
@@ -39,6 +39,14 @@ public abstract class NetworkComponent implements Runnable {
 	 */
 	public void stop() {
 		stop = true;
+	}
+	
+	/** 
+	 * Return whether this component has received the command to stop running
+	 * @return
+	 */
+	public boolean receivedStop() {
+		return stop;
 	}
 
 }
