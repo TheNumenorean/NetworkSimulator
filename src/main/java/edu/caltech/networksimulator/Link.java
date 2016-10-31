@@ -54,27 +54,34 @@ public class Link extends NetworkComponent {
 			if (!queue.isEmpty()) {
 
 				synchronized (queue) {
-					
+
+					// Get the next packet that should be sent
 					Sendable next = queue.peek();
 					long timeToSend = next.sendAt - System.currentTimeMillis();
 
+					// If time to send is now, send it and continue
 					if (timeToSend < 1) {
 						next.to.offerPacket(next.packet, this);
 						queue.poll();
-						continue;
-					}
+					} else {
+						// In case something is added that will need to be sent
+						// sooner, wait on the queue, then check again
 
-					try {
-						queue.wait(timeToSend);
-					} catch (InterruptedException e) {}
+						try {
+							queue.wait(timeToSend);
+						} catch (InterruptedException e) {
+						}
+					}
 				}
 
 			} else {
-
+				
+				// If queue is empty, wait until it is filled again
 				synchronized (queue) {
 					try {
 						queue.wait();
-					} catch (InterruptedException e) {}
+					} catch (InterruptedException e) {
+					}
 				}
 			}
 
@@ -93,8 +100,19 @@ public class Link extends NetworkComponent {
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
 
+		// TODO: Check buffer size and calculate actual time to send
+
 		synchronized (queue) {
 			queue.add(new Sendable(System.currentTimeMillis() + delayMS, p, end1.equals(n) ? end2 : end1));
+			queue.notifyAll();
+		}
+	}
+
+	@Override
+	public void stop() {
+		super.stop();
+
+		synchronized (queue) {
 			queue.notifyAll();
 		}
 	}

@@ -3,8 +3,10 @@
  */
 package edu.caltech.networksimulator;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * @author Francesco
@@ -24,7 +26,7 @@ public class NetworkSimulator implements Runnable {
 	public NetworkSimulator() {
 		networkComponents = new ArrayList<NetworkComponent>();
 		forceStop = false;
-		
+
 		inputListener = new InputListener();
 	}
 
@@ -36,13 +38,13 @@ public class NetworkSimulator implements Runnable {
 		NetworkSimulator sim = new NetworkSimulator();
 
 		Link l = new Link("Link1", 10000000, 1000, 64000);
-		
+
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
 		Packet p = new Packet(1, 2);
 		p.setMeta("Plaintext");
-		p.setPayload("Give me all your chocolate or else");
+		p.setPayload("DOOM");
 		source.addPacket(p);
 		sim.addComponent(source);
 
@@ -70,7 +72,7 @@ public class NetworkSimulator implements Runnable {
 		for (NetworkComponent n : networkComponents) {
 			new Thread(n).start();
 		}
-		
+
 		new Thread(inputListener).start();
 
 		while (!forceStop) {
@@ -79,7 +81,6 @@ public class NetworkSimulator implements Runnable {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
 
 			boolean isFinished = true;
 			for (NetworkComponent n : networkComponents) {
@@ -90,7 +91,7 @@ public class NetworkSimulator implements Runnable {
 			if (isFinished)
 				break;
 		}
-		
+
 		inputListener.stop();
 
 		for (NetworkComponent n : networkComponents)
@@ -98,42 +99,73 @@ public class NetworkSimulator implements Runnable {
 
 		// Complete calculations, get data and print it, etc.
 	}
-	
-	/** 
+
+	/**
 	 * Stops the simulator from running, and safely finishes running
 	 */
 	public void stop() {
 		forceStop = true;
 	}
-	
+
 	/**
 	 * 
 	 * @author Francesco
 	 *
 	 */
 	private class InputListener implements Runnable {
-		
+
 		private boolean stop;
+		
+		public InputListener() {
+			stop = false;
+		}
 
 		@Override
 		public void run() {
-			Scanner scan = new Scanner(System.in);
-			
-			while(!stop) {
-				String input = scan.nextLine();
-				
-				if(input.equalsIgnoreCase("stop"))
-					NetworkSimulator.this.stop();
+
+			try {
+
+				BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+				String com = "";
+				while (!stop) {
+					
+
+					if (reader.ready()) {
+						char c = (char) reader.read();
+						if (c == '\n') {
+
+							interpretCommand(com.trim());
+							com = "";
+
+						} else
+							com = com + c;
+					} else {
+						
+						try {
+							Thread.sleep(500);
+						} catch (InterruptedException e) {
+						}
+					}
+
+				}
+
+				reader.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-			
-			scan.close();
-			
 		}
-		
+
 		public void stop() {
 			stop = true;
 		}
-		
+
+		private void interpretCommand(String input) {
+			if (input.equalsIgnoreCase("stop"))
+				NetworkSimulator.this.stop();
+			else if(input.equalsIgnoreCase("ping"))
+				System.out.println("PONG");
+		}
 	}
 
 }
