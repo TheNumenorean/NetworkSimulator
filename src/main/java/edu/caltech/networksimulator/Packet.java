@@ -8,7 +8,7 @@ package edu.caltech.networksimulator;
  * 
  * Stores a single packet of indeterminate size
  * 
- * @author Francesco
+ * @authors Francesco, Carly
  *
  */
 public class Packet {

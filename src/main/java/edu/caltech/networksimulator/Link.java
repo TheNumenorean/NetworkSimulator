@@ -52,6 +52,8 @@ public class Link extends NetworkComponent {
 		while (!super.receivedStop()) {
 
 			if (!queue.isEmpty()) {
+				// This doesn't quite work, because imagine the link has a
+				// really low bandwidth.
 
 				synchronized (queue) {
 					
@@ -91,9 +93,11 @@ public class Link extends NetworkComponent {
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
-		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
+		System.out.println(getComponentName() + " received packet from " + n.getComponentName());
+		//System.out.println(getComponentName() + " received packet p: " + p + "\t from " + n.getComponentName());
 
 		synchronized (queue) {
+			// Add the packet to the queue, with the delay as specified 
 			queue.add(new Sendable(System.currentTimeMillis() + delayMS, p, end1.equals(n) ? end2 : end1));
 			queue.notifyAll();
 		}
@@ -111,6 +115,7 @@ public class Link extends NetworkComponent {
 
 	private class Sendable implements Comparable<Sendable> {
 
+		// Instead of sendAt, we should have sendNET (no earlier than)
 		public long sendAt;
 		public Packet packet;
 		public NetworkComponent to;
