@@ -24,6 +24,8 @@ public class NetworkSimulator implements Runnable {
 	 * 
 	 */
 	public NetworkSimulator() {
+		// TODO: Should take a description of a network we
+		// specify and implement that
 		networkComponents = new ArrayList<NetworkComponent>();
 		forceStop = false;
 
@@ -37,14 +39,12 @@ public class NetworkSimulator implements Runnable {
 
 		NetworkSimulator sim = new NetworkSimulator();
 
-		Link l = new Link("Link1", 10000000, 1000, 64000);
+		Link l = new Link("Link1", 10000000, 1000, 2000);// 64000);
 
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
-		Packet p = new Packet(1, 2);
-		p.setMeta("Plaintext");
-		p.setPayload("DOOM");
+		Packet p = new Packet(1, 2, "DOOM");
 		source.addPacket(p);
 		sim.addComponent(source);
 
@@ -52,8 +52,20 @@ public class NetworkSimulator implements Runnable {
 		sink.setIP(2);
 		sim.addComponent(sink);
 
+		
+		// run the simulation
 		sim.run();
-
+		
+		// TODO: record data for user-specified simulation variables
+		// at regular intervals.
+		
+		// TODO: Output graphs after each run showing
+		// the progression of the specified variables over time.
+		/*
+		 * Per-link buffer occupancy, packet loss, and flow rate.
+		 * Per-flow send/receive rate and packet round-trip delay.
+		 * Per-host send/receive rate.
+		 */
 	}
 
 	/**

@@ -8,24 +8,38 @@ import java.util.PriorityQueue;
 /**
  * @authors Francesco, Carly
  *
+ * Links represent the communication lines that connect hosts and
+ * routers together.
+ * 
+ * Links connect hosts and routers, and carry packets from one end to the other.
+ * Every link has a specified capacity in bits per second. You may assume that
+ * every host and router can process an infinite amount of incoming data
+ * instantaneously, but outgoing data must sit on a link buffer until the link is
+ * free. Link buffers are first-in, first-out. Packets that try to enter a full
+ * buffer will be dropped. For the purpose of this project, all links are
+ * half-duplex (data can flow in both directions, but only in one direction at a time).
  */
 public class Link extends NetworkComponent {
 
 	private NetworkComponent end1, end2;
 
+	// Packets trying to enter a full queue will be dropped
 	private PriorityQueue<Sendable> queue;
 
-	private long capacity, delayMS, bufferSize;
+	private long capacity, propagationDelay, bufferSize, currentSize;
 
 	/**
-	 * @param name
-	 * @param bufferSize
+	 * @param name of the link
+	 * @param capacity of the link in bits per second
+	 * @param propagationDelay in milliseconds
+	 * @param bufferSize in bytes (?)
 	 */
-	public Link(String name, int capacity, long delayMS, long bufferSize) {
+	public Link(String name, int capacity, long propagationDelay, long bufferSize) {
 		super(name);
 		this.capacity = capacity;
-		this.delayMS = delayMS;
+		this.propagationDelay = propagationDelay;
 		this.bufferSize = bufferSize;
+		this.currentSize = 0;
 
 		queue = new PriorityQueue<Sendable>();
 	}
@@ -54,6 +68,7 @@ public class Link extends NetworkComponent {
 			if (!queue.isEmpty()) {
 				// This doesn't quite work, because imagine the link has a
 				// really low bandwidth.
+				// TODO: account for bandwidth restrictions
 
 				synchronized (queue) {
 
@@ -100,15 +115,18 @@ public class Link extends NetworkComponent {
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
-		System.out.println(getComponentName() + " received packet from " + n.getComponentName());
-		//System.out.println(getComponentName() + " received packet p: " + p + "\t from " + n.getComponentName());
 
-		// TODO: Check buffer size and calculate actual time to send
-
-		synchronized (queue) {
-			// Add the packet to the queue, with the delay as specified 
-			queue.add(new Sendable(System.currentTimeMillis() + delayMS, p, end1.equals(n) ? end2 : end1));
-			queue.notifyAll();
+		// drops packet if the buffer is full
+		if (currentSize + p.getPacketSize() <= bufferSize) {
+			System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
+			synchronized (queue) {
+				// Add the packet to the queue, with the delay as specified 
+				queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
+				queue.notifyAll();
+			}
+			currentSize += p.getPacketSize();
+		} else {
+			System.out.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
 	}
 
