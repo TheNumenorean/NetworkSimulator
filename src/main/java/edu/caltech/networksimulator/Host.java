@@ -37,6 +37,14 @@ public class Host extends NetworkComponent implements Addressable  {
 				}
 			}
 			packet = null;
+			
+			// Dont run too often
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -51,7 +59,7 @@ public class Host extends NetworkComponent implements Addressable  {
 
 	@Override
 	public boolean finished() {
-		return false;
+		return true;
 	}
 
 	@Override
