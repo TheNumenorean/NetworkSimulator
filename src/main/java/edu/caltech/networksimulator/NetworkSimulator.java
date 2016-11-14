@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
+import edu.caltech.networksimulator.datacapture.GraphicalCaptureTool;
+
 /**
  * @author Francesco
  *
@@ -20,6 +22,8 @@ public class NetworkSimulator implements Runnable {
 
 	private InputListener inputListener;
 
+	private GraphicalCaptureTool dataCollector;
+
 	/**
 	 * 
 	 */
@@ -30,6 +34,8 @@ public class NetworkSimulator implements Runnable {
 		forceStop = false;
 
 		inputListener = new InputListener();
+		
+		dataCollector = new GraphicalCaptureTool();
 	}
 
 	/**
@@ -75,6 +81,7 @@ public class NetworkSimulator implements Runnable {
 	 *            The component to add
 	 */
 	public void addComponent(NetworkComponent comp) {
+		comp.addDataDollector(dataCollector);
 		networkComponents.add(comp);
 	}
 
