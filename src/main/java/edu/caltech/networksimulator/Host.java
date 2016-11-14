@@ -6,6 +6,9 @@ package edu.caltech.networksimulator;
 /**
  * @authors Francesco, Carly
  *
+ *  Hosts represent individual endpoint computers, like desktop computers or servers.
+ *  
+ *  Hosts will have at most one link connected.
  */
 public class Host extends NetworkComponent implements Addressable  {
 	
@@ -54,7 +57,13 @@ public class Host extends NetworkComponent implements Addressable  {
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
-		System.out.println(getComponentName() + " recieved packet p: " + p + "\t from " + n.getComponentName());
+		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
+		
+		if (p.getPayload() != "ACK") {
+			// Send an acknowledgement to the original message
+			// Switch source and destination
+			n.offerPacket(new Packet(p.getDest(), p.getSrc(), "ACK"), this);
+		}
 	}
 
 	@Override
