@@ -5,6 +5,8 @@ package edu.caltech.networksimulator;
 
 import java.util.PriorityQueue;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
+
 /**
  * @authors Francesco, Carly
  *
@@ -20,6 +22,8 @@ import java.util.PriorityQueue;
  * half-duplex (data can flow in both directions, but only in one direction at a time).
  */
 public class Link extends NetworkComponent {
+	
+	private int sentPackets, droppedPackets;
 
 	private NetworkComponent end1, end2;
 
@@ -83,6 +87,7 @@ public class Link extends NetworkComponent {
 						next.to.offerPacket(next.packet, this);
 						currentSize -= next.packet.getPacketSize();
 						queue.poll();
+						sentPackets++;
 					} else {
 						// In case something is added that will need to be sent
 						// sooner, wait on the queue, then check again
@@ -104,6 +109,12 @@ public class Link extends NetworkComponent {
 					}
 				}
 			}
+			
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis(), sentPackets);
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(), droppedPackets);
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(), currentSize);
+			
+			
 
 		}
 
@@ -129,6 +140,7 @@ public class Link extends NetworkComponent {
 			}
 			currentSize += p.getPacketSize();
 		} else {
+			droppedPackets++;
 			System.out.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
 	}

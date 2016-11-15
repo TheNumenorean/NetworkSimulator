@@ -3,6 +3,11 @@
  */
 package edu.caltech.networksimulator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import edu.caltech.networksimulator.datacapture.DataCaptureTool;
+
 /**
  * @authors Francesco, Carly
  *
@@ -12,10 +17,13 @@ public abstract class NetworkComponent implements Runnable {
 	private String name;
 	
 	private boolean stop;
+	
+	private List<DataCaptureTool> dataCollectors;
 
 	public NetworkComponent(String name){
 		this.name = name;
 		stop = false;
+		dataCollectors = new ArrayList<>();
 	}
 	
 	/**
@@ -47,6 +55,14 @@ public abstract class NetworkComponent implements Runnable {
 	 */
 	public boolean receivedStop() {
 		return stop;
+	}
+	
+	void addDataDollector(DataCaptureTool dct) {
+		dataCollectors.add(dct);
+	}
+	
+	List<DataCaptureTool> getDataCollectors() {
+		return dataCollectors;
 	}
 
 }
