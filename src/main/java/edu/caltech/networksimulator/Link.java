@@ -69,6 +69,8 @@ public class Link extends NetworkComponent {
 				// This doesn't quite work, because imagine the link has a
 				// really low bandwidth.
 				// TODO: account for bandwidth restrictions
+				// can send next in same direction after transmission delay
+				// can send next in different direction after transmission delay + size of packet
 
 				synchronized (queue) {
 
@@ -79,6 +81,7 @@ public class Link extends NetworkComponent {
 					// If time to send is now, send it and continue
 					if (timeToSend < 1) {
 						next.to.offerPacket(next.packet, this);
+						currentSize -= next.packet.getPacketSize();
 						queue.poll();
 					} else {
 						// In case something is added that will need to be sent
