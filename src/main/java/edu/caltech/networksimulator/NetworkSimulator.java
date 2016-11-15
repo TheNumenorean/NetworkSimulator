@@ -87,6 +87,8 @@ public class NetworkSimulator implements Runnable {
 
 	@Override
 	public void run() {
+		
+		dataCollector.start();
 
 		for (NetworkComponent n : networkComponents) {
 			new Thread(n).start();
@@ -115,6 +117,8 @@ public class NetworkSimulator implements Runnable {
 
 		for (NetworkComponent n : networkComponents)
 			n.stop();
+		
+		dataCollector.finish();
 
 		// Complete calculations, get data and print it, etc.
 	}

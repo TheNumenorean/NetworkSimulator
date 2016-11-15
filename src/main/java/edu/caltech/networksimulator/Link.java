@@ -110,6 +110,8 @@ public class Link extends NetworkComponent {
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis(), sentPackets);
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(), droppedPackets);
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(), currentSize);
+			
+			
 
 		}
 

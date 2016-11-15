@@ -5,6 +5,8 @@ package edu.caltech.networksimulator.datacapture;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -16,15 +18,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.Timer;
 
 import edu.caltech.networksimulator.NetworkComponent;
 
 
-public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
+public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, ActionListener {
 
 	private TreeMap<String, NetworkComponentContainer> components;
 	private int height, width;
 	private TreeMap<String, Boolean> binaryTracker;
+	
+	private Timer timer;
 
 	/**
 	 * 
@@ -32,20 +37,40 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 	public GraphicalCaptureTool() {
 		components = new TreeMap<String, NetworkComponentContainer>();
 		binaryTracker = new TreeMap<String, Boolean>();
+		timer = new Timer(50, this);
 
 		this.setSize(700, 700);
 
 		height = 150;
 		width = 600;
 
-		this.setVisible(true);
-
 
 	}
+	
+	public void start() {
+		this.setVisible(true);
+		timer.start();
+	}
+	
+	/**
+	 * 
+	 */
+	public void finish() {
+		timer.stop();
+	}
+	
+
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		repaint();
+	}
+	
+	
 
 	@Override
 	public void addData(NetworkComponent n, String dataName, long time, int value) {
-		addData(n, dataName, time, (double) value);
+		addData(n, dataName, time, (double)value);
 	}
 
 	@Override
@@ -69,7 +94,6 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 	public void addData(NetworkComponent n, String dataName, long time, double value) {
 		NetworkComponentContainer list = getComponentContainer(n);
 		list.addValue(dataName, time, value);
-		repaint();
 	}
 
 	private NetworkComponentContainer getComponentContainer(NetworkComponent n) {
@@ -78,7 +102,6 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 			list = new NetworkComponentContainer();
 			components.put(n.getComponentName(), list);
 			this.getContentPane().add(list);
-			repaint();
 		}
 
 		return list;
@@ -90,11 +113,11 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 		 * 
 		 */
 		private static final long serialVersionUID = 2721174287672393834L;
-		TreeMap<String, SensorData> data;
+		TreeMap<String, DataLine> data;
 		private Queue<Color> colors;
 
 		public NetworkComponentContainer() {
-			data = new TreeMap<String, SensorData>();
+			data = new TreeMap<String, DataLine>();
 
 			this.setBorder(BorderFactory.createLineBorder(Color.GREEN));
 			this.setBackground(Color.GRAY);
@@ -120,21 +143,21 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 
 		public void addValue(String dataName, long time, double value) {
 
-			SensorData data = getSensorData(dataName);
+			DataLine data = getDataLine(dataName);
 			if (data == null) {
-				data = new SensorData(colors.poll());
-				addSensorData(dataName, data);
+				data = new DataLine(colors.poll());
+				addDataLine(dataName, data);
 			}
 
 			data.addValue(time, value);
 
 		}
 
-		public SensorData getSensorData(String name) {
+		public DataLine getDataLine(String name) {
 			return data.get(name);
 		}
 
-		public void addSensorData(String name, SensorData sd) {
+		public void addDataLine(String name, DataLine sd) {
 			data.put(name, sd);
 			sd.setDimensions(width, height);
 			this.invalidate();
@@ -143,27 +166,40 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 		@Override
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			for (SensorData sd : data.values())
+			for (DataLine sd : data.values())
 				sd.paint(g);
 		}
 
 	}
 
-	private class SensorData {
+	/**
+	 * Represents a line on a plot
+	 * @author Francesco
+	 *
+	 */
+	private class DataLine {
 
 		private ConcurrentLinkedQueue<Entry<Long, Double>> values;
 		private int height;
 		private int width;
 		private Color c;
-		private double highest;
+		private double maxValue;
 		private int timeRange;
 		private long lastTime;
 		private long lastUpdate;
 
-		public SensorData(Color color) {
+		/**
+		 * Creates a new data line with the given color
+		 * @param color
+		 */
+		public DataLine(Color color) {
 			values = new ConcurrentLinkedQueue<Entry<Long, Double>>();
 			c = color;
 			timeRange = 10000;
+		}
+		
+		public void setMaxValue(double maxValue) {
+			this.maxValue = maxValue;
 		}
 
 		public void setDimensions(int width, int height) {
@@ -181,8 +217,8 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 			lastUpdate = System.currentTimeMillis();
 			while(values.peek().getKey() - time > timeRange)
 				values.remove();
-			if (value > highest)
-				highest = value;
+			if (value > maxValue)
+				maxValue = value;
 		}
 
 		public void paint(Graphics g) {
@@ -190,9 +226,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 			g.setColor(c);
 			int oldX = -1, lastHeight = -1;
 
-			double scalar = height / highest;
-				
-			//System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+			double scalar = height / maxValue;
 			
 			long timeSince = System.currentTimeMillis() - lastUpdate;
 			
@@ -211,18 +245,14 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool {
 					lastHeight = newHeight;
 				
 				g.drawLine(width - oldX, height - lastHeight + 1, width - x, height - newHeight + 1);
-				
-				//System.out.println(lastTime + "\t" + x + "\t" + next.getKey() + "\t" + newHeight + "\t" + lastHeight);
 
 				oldX = x;
 				lastHeight = newHeight;
 			}
 			
-			if(timeSince > 0){
-				
+			// Paint a line to the current time
+			if(timeSince > 0)
 				g.drawLine(width - oldX, height - lastHeight + 1, width, height - lastHeight + 1);
-				
-			}
 
 		}
 
