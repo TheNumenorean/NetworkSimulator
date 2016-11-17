@@ -83,4 +83,8 @@ public class Packet {
 		return "{Src: " + getSrc() + " Dest: " + getDest() + " Payload: " + getPayload() + "}";
 	}
 
+	public long getPacketSizeBits() {
+		return 8 * getPacketSize();
+	}
+
 }
