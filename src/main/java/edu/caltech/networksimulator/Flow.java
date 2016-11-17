@@ -54,7 +54,7 @@ public class Flow {
 	}
 	
 	public Packet getPacket() {
-		if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets) && (this.numSent < this.window)) {
+		if ((this.start_at < System.currentTimeMillis()) && (!this.isDone()) && (this.numSent < this.window)) {
 			this.numSent++;
 			return new Packet(this.src, this.dest, "DOOM" + this.i);
 		}
@@ -74,7 +74,11 @@ public class Flow {
 	}
 	
 	public long getIndex() {
-		return i;
+		return this.i;
+	}
+	
+	public boolean isDone() {
+		return this.i >= this.num_packets;
 	}
 
 }

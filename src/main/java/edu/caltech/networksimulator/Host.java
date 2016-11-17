@@ -79,7 +79,11 @@ public class Host extends NetworkComponent implements Addressable  {
 
 	@Override
 	public boolean finished() {
-		return true;
+		if (flow == null) {
+			return true;
+		} else {
+			return flow.isDone();
+		}
 	}
 
 	@Override
