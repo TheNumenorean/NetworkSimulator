@@ -61,10 +61,10 @@ public class NetworkSimulator implements Runnable {
 		
 		// run the simulation
 		sim.run();
-		Link l0 = new Link("Link0", 12500000, 10, 3000);// 3000 // 64000);
+		// Link l0 = new Link("Link0", 12500000, 10, 3000);// 3000 // 64000);
 		
 		// OTHER SETUP:
-		NetworkSimulator sim2 = new NetworkSimulator();
+		// NetworkSimulator sim2 = new NetworkSimulator();
 		
 		
 		// TODO: record data for user-specified simulation variables
