@@ -3,6 +3,8 @@
  */
 package edu.caltech.networksimulator;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
+
 /**
  * @author Francesco
  *
@@ -21,11 +23,58 @@ package edu.caltech.networksimulator;
  */
 public abstract class Router extends NetworkComponent implements Addressable {
 
+	private NetworkComponent end1, end2;
+	
 	/**
 	 * 
 	 */
 	public Router(String name) {
 		super(name);
 	}
+	
+	/**
+	 * @param comp
+	 */
+	public void setConnection(NetworkComponent comp) {
+		if (end1 == null)
+			end1 = comp;
+		else if (end2 == null)
+			end2 = comp;
+		else
+			throw new NetworkException("Links can only link 2 network components");
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Runnable#run()
+	 */
+	@Override
+	public void run() {
+//		while (!super.receivedStop()) {
+//			// Nothing. Purely reactionary.
+//			// Future: broadcast routing table
+//		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * edu.caltech.networksimulator.NetworkComponent#offerPacket(edu.caltech.
+	 * networksimulator.Packet)
+	 */
+	@Override
+	public void offerPacket(Packet p, NetworkComponent n) {
+		System.out.println(
+				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
+		// *Look up in the routing table*
+		if (end1.equals(n)) {
+			end2.offerPacket(p, this);
+		} else { // should be else if
+			end1.offerPacket(p, this);
+		}
+	}
+
 
 }
