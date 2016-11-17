@@ -12,7 +12,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureTool;
  * @authors Francesco, Carly
  *
  */
-public abstract class NetworkComponent implements Runnable {
+public abstract class NetworkComponent implements Runnable, Comparable<NetworkComponent> {
 	
 	private String name;
 	
@@ -63,6 +63,10 @@ public abstract class NetworkComponent implements Runnable {
 	
 	List<DataCaptureTool> getDataCollectors() {
 		return dataCollectors;
+	}
+	
+	public int compareTo(NetworkComponent n) {
+		return n.name.compareTo(name);
 	}
 
 }

@@ -3,6 +3,9 @@
  */
 package edu.caltech.networksimulator;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
 /**
@@ -21,27 +24,18 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
  * among nodes is not permitted, and all of the constraints that come with the
  * fact that networks are distributed systems must be followed.
  */
-public abstract class Router extends NetworkComponent implements Addressable {
-
-	private NetworkComponent end1, end2;
+public class Router extends NetworkComponent implements Addressable {
+	
+	// Routing table as map
+	private Map<NetworkComponent, NetworkComponent> routingTable;
 	
 	/**
 	 * 
 	 */
 	public Router(String name) {
 		super(name);
-	}
-	
-	/**
-	 * @param comp
-	 */
-	public void setConnection(NetworkComponent comp) {
-		if (end1 == null)
-			end1 = comp;
-		else if (end2 == null)
-			end2 = comp;
-		else
-			throw new NetworkException("Links can only link 2 network components");
+		// how to initialize map?
+		routingTable = new TreeMap<NetworkComponent, NetworkComponent>();
 	}
 	
 	/*
@@ -69,11 +63,32 @@ public abstract class Router extends NetworkComponent implements Addressable {
 		System.out.println(
 				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 		// *Look up in the routing table*
-		if (end1.equals(n)) {
-			end2.offerPacket(p, this);
-		} else { // should be else if
-			end1.offerPacket(p, this);
-		}
+		routingTable.get(n).offerPacket(p, this);
+	}
+	
+	// Makes a static routing table
+	public void addRouting(Link from, Link to) {
+		this.routingTable.put(from, to);
+		from.setConnection(this);
+		to.setConnection(this);
+	}
+
+	@Override
+	public long getMACAddress() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public long getIP() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean finished() {
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 

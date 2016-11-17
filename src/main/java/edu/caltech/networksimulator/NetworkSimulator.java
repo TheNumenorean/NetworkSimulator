@@ -43,28 +43,82 @@ public class NetworkSimulator implements Runnable {
 	 */
 	public static void main(String[] args) {
 
+		// CASE 0:
 		NetworkSimulator sim = new NetworkSimulator();
 
+		// create link
 		Link l = new Link("Link1", 10000000, 1000, 64000);// 3000 // 64000);
-
 		sim.addComponent(l);
+		
+		// Add source
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
 		Flow f = new Flow(1, 2, 1, 20, 1000);
 		source.addFlow(f);
 		sim.addComponent(source);
 
+		// Add sink
 		Host sink = new Host("Host2", l, 2000);
 		sink.setIP(2);
 		sim.addComponent(sink);
-
 		
 		// run the simulation
 		sim.run();
-		Link l0 = new Link("Link0", 12500000, 10, 3000);// 3000 // 64000);
 		
-		// OTHER SETUP:
-		NetworkSimulator sim2 = new NetworkSimulator();
+		
+		
+//		// CASE 2:
+//		NetworkSimulator sim2 = new NetworkSimulator();
+//		// make links
+//		Link l0 = new Link("Link0", 12500000, 10, 64000);
+//		sim2.addComponent(l0);
+//		Link l1 = new Link("Link1", 10000000, 10, 64000);
+//		sim2.addComponent(l1);
+//		Link l2 = new Link("Link2", 10000000, 10, 64000);
+//		sim2.addComponent(l2);
+//		Link l3 = new Link("Link3", 10000000, 10, 64000);
+//		sim2.addComponent(l3);
+//		Link l4 = new Link("Link4", 10000000, 10, 64000);
+//		sim2.addComponent(l4);
+//		Link l5 = new Link("Link5", 12500000, 10, 64000);
+//		sim2.addComponent(l5);
+//		
+//		// Add source
+//		Host source2 = new Host("Host1", l0, 1000);
+//		source2.setIP(1);
+//		Flow f2 = new Flow(1, 2, 1, 20, 500);
+//		source2.addFlow(f2);
+//		sim2.addComponent(source2);
+//		
+//		// Add sink
+//		Host sink2 = new Host("Host2", l5, 2000);
+//		sink2.setIP(2);
+//		sim2.addComponent(sink2);
+//		
+//		// Add routers
+//		Router r1 = new Router("Router 1");
+//		r1.addRouting(l0, l1);
+//		r1.addRouting(l1, l0);
+//		r1.addRouting(l2, l0);
+//		sim2.addComponent(r1);
+//		
+//		Router r4 = new Router("Router 4");
+//		r4.addRouting(l3, l5);
+//		r4.addRouting(l4, l5);
+//		r4.addRouting(l5, l4);
+//		sim2.addComponent(r4);
+//		
+//		Router r2 = new Router("Router 2");
+//		r2.addRouting(l1, l3);
+//		r2.addRouting(l3, l1);
+//		sim2.addComponent(r2);
+//		
+//		Router r3 = new Router("Router 3");
+//		r3.addRouting(l2, l4);
+//		r3.addRouting(l4, l2);
+//		sim2.addComponent(r2);
+//		
+//		sim2.run();
 		
 		
 		// TODO: record data for user-specified simulation variables

@@ -74,8 +74,10 @@ public class Link extends NetworkComponent {
 			end1 = comp;
 		else if (end2 == null)
 			end2 = comp;
-		else
-			throw new NetworkException("Links can only link 2 network components");
+//		else {
+//			if (!end1.equals(comp) && !end2.equals(comp))
+//				//throw new NetworkException("Links can only link 2 network components");
+//		}
 	}
 
 	/*

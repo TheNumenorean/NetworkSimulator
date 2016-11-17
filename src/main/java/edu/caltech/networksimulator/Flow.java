@@ -47,6 +47,7 @@ public class Flow {
 		this.start_at = System.currentTimeMillis() + start_delay;
 		// convert MB to bytes then divide then round up
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
+		System.out.println(this.num_packets);
 		this.i = 0;
 		this.numSent = 0;
 		this.window = 5; // fixed window size
