@@ -63,7 +63,7 @@ public class Host extends NetworkComponent implements Addressable  {
 			// Send an acknowledgement to the original message
 			// Switch source and destination
 			n.offerPacket(new Packet(p.getDest(), p.getSrc(), 
-					"ACK" + message.charAt(message.length() - 1)), this);
+					"ACK" + message.substring(4)), this);
 				// last char
 		} else { // payload is ACK, inform the flow
 			flow.recievedPacket(p);

@@ -55,7 +55,7 @@ public class Flow {
 	public Packet getPacket() {
 		if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets) && (this.numSent < this.window)) {
 			this.numSent++;
-			return new Packet(this.src, this.dest, "Flow 1 sending DOOM" + this.i);
+			return new Packet(this.src, this.dest, "DOOM" + this.i);
 		}
 		return null;
 	}
