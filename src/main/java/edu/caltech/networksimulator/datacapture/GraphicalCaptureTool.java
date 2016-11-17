@@ -126,6 +126,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			colors = new LinkedList<Color>();
 
 			colors.add(Color.BLUE);
+			colors.add(Color.RED);
 			colors.add(Color.CYAN);
 			colors.add(Color.DARK_GRAY);
 			colors.add(Color.GRAY);
@@ -134,7 +135,6 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			colors.add(Color.MAGENTA);
 			colors.add(Color.ORANGE);
 			colors.add(Color.PINK);
-			colors.add(Color.RED);
 			colors.add(Color.WHITE);
 			colors.add(Color.YELLOW);
 			colors.add(Color.BLACK);
@@ -147,6 +147,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			if (data == null) {
 				data = new DataLine(colors.poll());
 				addDataLine(dataName, data);
+				
 			}
 
 			data.addValue(time, value);

@@ -3,7 +3,6 @@
  */
 package edu.caltech.networksimulator;
 
-import java.util.PriorityQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -141,8 +140,6 @@ public class Link extends NetworkComponent {
 
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis(),
 					sentPackets);
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(),
-					droppedPackets);
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
 					currentSize);
 
@@ -172,6 +169,8 @@ public class Link extends NetworkComponent {
 			currentSize += p.getPacketSize();
 		} else {
 			droppedPackets++;
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(),
+					droppedPackets);
 			System.out
 					.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
