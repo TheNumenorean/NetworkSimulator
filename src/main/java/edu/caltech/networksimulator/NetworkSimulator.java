@@ -45,7 +45,7 @@ public class NetworkSimulator implements Runnable {
 
 		NetworkSimulator sim = new NetworkSimulator();
 
-		Link l = new Link("Link1", 10000000, 1000, 3000);// 64000);
+		Link l = new Link("Link1", 10000000, 1000, 64000);// 3000 // 64000);
 
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
@@ -61,6 +61,11 @@ public class NetworkSimulator implements Runnable {
 		
 		// run the simulation
 		sim.run();
+		Link l0 = new Link("Link0", 12500000, 10, 3000);// 3000 // 64000);
+		
+		// OTHER SETUP:
+		NetworkSimulator sim2 = new NetworkSimulator();
+		
 		
 		// TODO: record data for user-specified simulation variables
 		// at regular intervals.
