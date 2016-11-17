@@ -193,7 +193,7 @@ public class Link extends NetworkComponent {
 
 	private class Sendable {
 
-		// Instead of sendAt, we should have sendNET (no earlier than)
+		// Send no earlier than this time
 		public long sendNET;
 		public Packet packet;
 		public NetworkComponent to;

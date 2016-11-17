@@ -69,5 +69,9 @@ public class Flow {
 	public String toString() {
 		return "{Src: " + src + " Dest: " + dest + "}";
 	}
+	
+	public long getIndex() {
+		return i;
+	}
 
 }

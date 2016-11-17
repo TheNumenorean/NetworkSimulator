@@ -3,6 +3,8 @@
  */
 package edu.caltech.networksimulator;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
+
 /**
  * @authors Francesco, Carly
  *
@@ -39,11 +41,16 @@ public class Host extends NetworkComponent implements Addressable  {
 				if (nextPacket != null) {
 					link.offerPacket(nextPacket, this);
 				}
+				
+				DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Index", System.currentTimeMillis(),
+						flow.getIndex());
 			}
+			
+			
 			
 			// Dont run too often
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
