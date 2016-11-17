@@ -4,6 +4,7 @@
 package edu.caltech.networksimulator;
 
 import java.util.PriorityQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
@@ -28,7 +29,7 @@ public class Link extends NetworkComponent {
 	private NetworkComponent end1, end2;
 
 	// Packets trying to enter a full queue will be dropped
-	private PriorityQueue<Sendable> queue;
+	private LinkedBlockingQueue<Sendable> queue;
 
 	private long capacity, propagationDelay, bufferSize, currentSize;
 
@@ -45,7 +46,7 @@ public class Link extends NetworkComponent {
 		this.bufferSize = bufferSize;
 		this.currentSize = 0;
 
-		queue = new PriorityQueue<Sendable>();
+		queue = new LinkedBlockingQueue<Sendable>();
 	}
 
 	/**
@@ -161,7 +162,7 @@ public class Link extends NetworkComponent {
 		return o instanceof Link && ((Link) o).end1.equals(end1) && ((Link) o).end2.equals(end2);
 	}
 
-	private class Sendable implements Comparable<Sendable> {
+	private class Sendable{
 
 		// Instead of sendAt, we should have sendNET (no earlier than)
 		public long sendAt;
@@ -172,11 +173,6 @@ public class Link extends NetworkComponent {
 			this.sendAt = sendAt;
 			this.packet = packet;
 			this.to = to;
-		}
-
-		@Override
-		public int compareTo(Sendable o) {
-			return (int) (sendAt - o.sendAt);
 		}
 	}
 
