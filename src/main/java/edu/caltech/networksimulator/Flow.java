@@ -49,7 +49,8 @@ public class Flow {
 	}
 	
 	public Packet getPacket() {
-		if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets)) {
+		if (this.i < this.num_packets) {
+		//if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets)) {
 			return new Packet(this.src, this.dest, "Flow 1 sending DOOM" + this.i);
 		}
 		return null;
@@ -57,8 +58,8 @@ public class Flow {
 	
 	public void recievedPacket(Packet p) {
 		// Algorithm: send same packet at a time until done.
-		if (p.getPayload() == "ACK" + this.i) {
-			this.i++;
+		if (p.getPayload().equals("ACK" + this.i)) {
+			this.i = this.i + 1;
 		}
 	}
 	

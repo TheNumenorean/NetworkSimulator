@@ -43,7 +43,7 @@ public class Host extends NetworkComponent implements Addressable  {
 			
 			// Dont run too often
 			try {
-				Thread.sleep(200);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -59,7 +59,8 @@ public class Host extends NetworkComponent implements Addressable  {
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
 		String message = p.getPayload();
-		if (!message.equals("ACK")) {
+		System.out.println(message.substring(0, 3));
+		if (!(message.substring(0, 3).equals("ACK"))) {
 			// Send an acknowledgement to the original message
 			// Switch source and destination
 			n.offerPacket(new Packet(p.getDest(), p.getSrc(), 
