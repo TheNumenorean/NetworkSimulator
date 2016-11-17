@@ -14,11 +14,12 @@ package edu.caltech.networksimulator;
 public class Packet {
 	
 	private static final int PACKET_SIZE = 1024; // bytes
-	private static final int ACK_SIZE = 64; // bytes 
+	private static final int ACK_SIZE = 64; // bytes
 	
 	// public static final int CHAR_SIZE = 2;
 	private final long src, dest;
 	private int size;
+	// sent_time
 	
 	private String payload;
 	
@@ -42,7 +43,7 @@ public class Packet {
 //		return (meta.length() + payload.length()) * CHAR_SIZE;
 //	}
 	public long getPacketSize() {
-		if (this.payload == "ACK") {
+		if (this.payload.equals("ACK")) {
 			return ACK_SIZE; // acknowledgements are shorter
 		}
 		return PACKET_SIZE; // packets are all a given size

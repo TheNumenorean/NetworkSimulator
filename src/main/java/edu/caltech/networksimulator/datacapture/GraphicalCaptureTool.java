@@ -119,7 +119,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		public NetworkComponentContainer() {
 			data = new TreeMap<String, DataLine>();
 
-			this.setBorder(BorderFactory.createLineBorder(Color.GREEN));
+			this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 			this.setBackground(Color.GRAY);
 			this.setSize(width, height+3);
 

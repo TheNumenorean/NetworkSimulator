@@ -59,7 +59,7 @@ public class Host extends NetworkComponent implements Addressable  {
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
 		
-		if (p.getPayload() != "ACK") {
+		if (!p.getPayload().equals("ACK")) {
 			// Send an acknowledgement to the original message
 			// Switch source and destination
 			n.offerPacket(new Packet(p.getDest(), p.getSrc(), "ACK"), this);
