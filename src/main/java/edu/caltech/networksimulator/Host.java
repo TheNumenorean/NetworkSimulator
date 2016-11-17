@@ -14,8 +14,8 @@ public class Host extends NetworkComponent implements Addressable  {
 	
 	private long macAddress;
 	private long ip;
-	private Packet packet;
 	private Link link;
+	private Flow flow;
 
 	/**
 	 * @param name
@@ -34,12 +34,12 @@ public class Host extends NetworkComponent implements Addressable  {
 	public void run() {
 		
 		while(!super.receivedStop()) {
-			if (packet != null) {
-				for (int i = 0; i < 5; i++) { // send a manageable number of packets
-					link.offerPacket(packet, this);
+			if (flow != null) {
+				Packet nextPacket = flow.getPacket();
+				if (nextPacket != null) {
+					link.offerPacket(nextPacket, this);
 				}
 			}
-			packet = null;
 			
 			// Dont run too often
 			try {
@@ -58,11 +58,15 @@ public class Host extends NetworkComponent implements Addressable  {
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
-		
-		if (!p.getPayload().equals("ACK")) {
+		String message = p.getPayload();
+		if (!message.equals("ACK")) {
 			// Send an acknowledgement to the original message
 			// Switch source and destination
-			n.offerPacket(new Packet(p.getDest(), p.getSrc(), "ACK"), this);
+			n.offerPacket(new Packet(p.getDest(), p.getSrc(), 
+					"ACK" + message.charAt(message.length() - 1)), this);
+				// last char
+		} else { // payload is ACK, inform the flow
+			flow.recievedPacket(p);
 		}
 	}
 
@@ -85,9 +89,13 @@ public class Host extends NetworkComponent implements Addressable  {
 		this.ip = ip;
 	}
 	
-	public void addPacket(Packet p) {
-		System.out.println(getComponentName() + " recieved instruction to send packet p: " + p);
-		this.packet = p;
+//	public void addPacket(Packet p) {
+//		System.out.println(getComponentName() + " recieved instruction to send packet p: " + p);
+//	}
+	
+	public void addFlow(Flow f) {
+		System.out.println(getComponentName() + " recieved flow f: " + f);
+		this.flow = f;
 	}
 	
 	@Override

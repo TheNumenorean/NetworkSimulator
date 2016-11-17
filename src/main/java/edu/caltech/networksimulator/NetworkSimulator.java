@@ -50,8 +50,7 @@ public class NetworkSimulator implements Runnable {
 		sim.addComponent(l);
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
-		Packet p = new Packet(1, 2, "DOOM");
-		source.addPacket(p);
+		Flow f = new Flow(1, 2, 1, 20, 1000);
 		sim.addComponent(source);
 
 		Host sink = new Host("Host2", l, 2000);
@@ -98,7 +97,7 @@ public class NetworkSimulator implements Runnable {
 
 		while (!forceStop) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(10000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

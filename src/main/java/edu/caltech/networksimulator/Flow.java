@@ -20,30 +20,50 @@ package edu.caltech.networksimulator;
  */
 public class Flow {
 	
-	private static final String ctrl_alg = "TCP Reno"; // for example
+	private static final String ctrl_alg = "Naive"; // for example
 	// probably want src as a networkComponent
 	private final long src, dest;
 	private final int _id;
 	private final long data_size;
-	private final long start_delay;
+	private final long start_at;
+	private final int num_packets;
+	private int i; // how far along we are in the flow
 	
 	/**
 	 * @param src The source IP
 	 * @param dest The destination IP
 	 * @param _id The ID number of the flow
-	 * @param data_size The amount of data to send as part of this flow, in MB (?)
-	 * @param start_delay The delay in starting to send this flow (milliseconds)
+	 * @param data_size The amount of data to send as part of this flow, in MB
+	 * @param start_delay The delay in starting to send this flow, in millis
 	 */
 	public Flow(long src, long dest, int _id, long data_size, long start_delay) {
 		this.src = src;
 		this.dest = dest;
 		this._id = _id;
 		this.data_size = data_size;
-		this.start_delay = start_delay;
+		// 1000 = millis in second
+		this.start_at = System.currentTimeMillis() + start_delay;
+		// convert MB to bytes then divide then round up
+		this.num_packets = (int) (data_size * 1000000 / 1024) + 1;
+		this.i = 0;
 	}
 	
-//	public Packet getPacket() {
-//		//return new Packet(this.src, this.dest);
-//	}
+	public Packet getPacket() {
+		if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets)) {
+			return new Packet(this.src, this.dest, "Flow 1 sending DOOM" + this.i);
+		}
+		return null;
+	}
+	
+	public void recievedPacket(Packet p) {
+		// Algorithm: send same packet at a time until done.
+		if (p.getPayload() == "ACK" + this.i) {
+			this.i++;
+		}
+	}
+	
+	public String toString() {
+		return "{Src: " + src + " Dest: " + dest + "}";
+	}
 
 }
