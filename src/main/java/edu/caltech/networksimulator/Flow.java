@@ -26,8 +26,9 @@ public class Flow {
 	private final int _id;
 	private final long data_size;
 	private final long start_at;
-	private final int num_packets;
-	private int i; // how far along we are in the flow
+	private final long num_packets;
+	private long i; // how far along we are in the flow
+	private boolean sent;
 	
 	/**
 	 * @param src The source IP
@@ -44,13 +45,14 @@ public class Flow {
 		// 1000 = millis in second
 		this.start_at = System.currentTimeMillis() + start_delay;
 		// convert MB to bytes then divide then round up
-		this.num_packets = (int) (data_size * 1000000 / 1024) + 1;
+		this.num_packets = ((data_size * 1000000) / 1024) + 1;
 		this.i = 0;
+		this.sent = false;
 	}
 	
 	public Packet getPacket() {
-		if (this.i < this.num_packets) {
-		//if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets)) {
+		if ((this.start_at < System.currentTimeMillis()) && (this.i < this.num_packets) && !this.sent) {
+			this.sent = true;
 			return new Packet(this.src, this.dest, "Flow 1 sending DOOM" + this.i);
 		}
 		return null;
@@ -60,6 +62,7 @@ public class Flow {
 		// Algorithm: send same packet at a time until done.
 		if (p.getPayload().equals("ACK" + this.i)) {
 			this.i = this.i + 1;
+			this.sent = false;
 		}
 	}
 	
