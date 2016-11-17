@@ -99,7 +99,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 	private NetworkComponentContainer getComponentContainer(NetworkComponent n) {
 		NetworkComponentContainer list = components.get(n.getComponentName());
 		if (list == null) {
-			list = new NetworkComponentContainer();
+			list = new NetworkComponentContainer(components.size());
 			components.put(n.getComponentName(), list);
 			this.getContentPane().add(list);
 		}
@@ -116,12 +116,13 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		TreeMap<String, DataLine> data;
 		private Queue<Color> colors;
 
-		public NetworkComponentContainer() {
+		public NetworkComponentContainer(int num) {
 			data = new TreeMap<String, DataLine>();
 
 			this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 			this.setBackground(Color.GRAY);
 			this.setSize(width, height+3);
+			this.setLocation(0, num * (height + 3));
 
 			colors = new LinkedList<Color>();
 
