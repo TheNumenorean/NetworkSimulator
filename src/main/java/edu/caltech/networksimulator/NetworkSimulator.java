@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import edu.caltech.networksimulator.datacapture.GraphicalCaptureTool;
+import edu.caltech.networksimulator.datacapture.graphical.GraphicalCaptureTool;
 
 /**
  * @author Francesco
