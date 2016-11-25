@@ -6,6 +6,7 @@ package edu.caltech.networksimulator;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureTool;
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
 /**
@@ -51,19 +52,23 @@ public class Link extends NetworkComponent {
 		this.capacity = capacity;
 		this.propagationDelay = propagationDelay;
 		this.bufferSize = bufferSize;
-		this.currentSize = 0;
 
 		queue = new LinkedBlockingQueue<Sendable>();
 
 		sentPackets = 0;
 		droppedPackets = 0;
+		this.currentSize = 0;
 
-		DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis(),
-				sentPackets);
-		DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(),
-				droppedPackets);
-		DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
-				currentSize);
+		// Initialize data capture tools
+		for (DataCaptureTool dc : getDataCollectors()) {
+			
+			dc.addData(this, "Sent Packets", System.currentTimeMillis(),
+					sentPackets);
+			dc.addData(this, "Dropped Packets", System.currentTimeMillis(),
+					droppedPackets);
+			dc.addData(this, "Buffer Size", System.currentTimeMillis(), currentSize);
+			dc.setMax(this, "Buffer Size", bufferSize);
+		}
 	}
 
 	/**

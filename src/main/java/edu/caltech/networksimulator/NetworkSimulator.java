@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import edu.caltech.networksimulator.datacapture.GraphicalCaptureTool;
+import edu.caltech.networksimulator.datacapture.graphical.GraphicalCaptureTool;
 
 /**
  * @author Francesco
@@ -64,8 +64,6 @@ public class NetworkSimulator implements Runnable {
 //		
 //		// run the simulation
 //		sim.run();
-		
-		
 		
 		// CASE 2:
 		NetworkSimulator sim2 = new NetworkSimulator();
