@@ -22,7 +22,7 @@ import javax.swing.JComponent;
  * @author Francesco
  *
  */
-public class Graph extends JComponent implements MouseWheelListener {
+public class Graph extends JComponent {
 
 
 	TreeMap<String, DataLine> data;
@@ -56,8 +56,6 @@ public class Graph extends JComponent implements MouseWheelListener {
 		colors.add(Color.WHITE);
 		colors.add(Color.YELLOW);
 		colors.add(Color.BLACK);
-		
-		this.addMouseWheelListener(this);
 
 	}
 	
@@ -80,12 +78,6 @@ public class Graph extends JComponent implements MouseWheelListener {
 		}
 		
 		return line;
-	}
-	
-
-	@Override
-	public void mouseWheelMoved(MouseWheelEvent e) {
-		System.out.println(e.getWheelRotation());
 	}
 	
 	@Override

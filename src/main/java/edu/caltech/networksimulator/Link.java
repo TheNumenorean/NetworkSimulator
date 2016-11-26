@@ -150,7 +150,7 @@ public class Link extends NetworkComponent {
 			currentSize -= next.packet.getPacketSize();
 			sentPackets++;
 
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis(),
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketSent + 1));
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
 					currentSize);
@@ -184,7 +184,7 @@ public class Link extends NetworkComponent {
 			currentSize += p.getPacketSize();
 		} else {
 			droppedPackets++;
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(),
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 			
 			lastPacketDropped = System.currentTimeMillis();

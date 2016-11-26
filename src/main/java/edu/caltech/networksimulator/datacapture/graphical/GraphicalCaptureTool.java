@@ -9,6 +9,8 @@ import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -23,7 +25,7 @@ import javax.swing.Timer;
 import edu.caltech.networksimulator.NetworkComponent;
 import edu.caltech.networksimulator.datacapture.DataCaptureTool;
 
-public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, ActionListener {
+public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, ActionListener, MouseWheelListener {
 
 	public static int GRAPH_HEIGHT = 150;
 	public static int GRAPH_WIDTH = 600;
@@ -44,6 +46,8 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
 		this.setSize(700, 700);
+		
+		this.addMouseWheelListener(this);
 
 	}
 
@@ -106,6 +110,11 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		}
 
 		return list;
+	}
+	
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		System.out.println(e.getWheelRotation());
 	}
 
 	private class NetworkComponentContainer extends JComponent {
