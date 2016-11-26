@@ -90,6 +90,7 @@ public class Flow {
 	
 	public int getNumSent() {
 		return this.numSent;
+	}
 
 	public long getTotalPackets() {
 		return num_packets;
