@@ -205,7 +205,22 @@ public class Link extends NetworkComponent {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof Link && ((Link) o).end1.equals(end1) && ((Link) o).end2.equals(end2);
+		return o instanceof Link && ((Link) o).end1.equals(end1) && ((Link) o).end2.equals(end2) && ((Link) o).getComponentName().equals(getComponentName());
+	}
+	
+	@Override
+	public String toString() {
+		if (end1 != null){
+			if (end2 != null) {
+				return "{Name: " + getComponentName() + " end1: " + end1.getComponentName() + " end2: " + end2.getComponentName() + "}";
+			} else { // end2 is null
+				return "{Name: " + getComponentName() + " end1: " + end1.getComponentName() + " end2: " + end2 + "}";
+			}
+		} else if (end2 != null) { // end1 is null
+			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2.getComponentName() + "}";
+		} else { // both ends are null
+			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2 + "}";
+		}
 	}
 
 	private class Sendable {

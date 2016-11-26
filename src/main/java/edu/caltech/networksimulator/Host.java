@@ -105,10 +105,6 @@ public class Host extends NetworkComponent implements Addressable  {
 		this.ip = ip;
 	}
 	
-//	public void addPacket(Packet p) {
-//		System.out.println(getComponentName() + " recieved instruction to send packet p: " + p);
-//	}
-	
 	public void addFlow(Flow f) {
 		System.out.println(getComponentName() + " recieved flow f: " + f);
 		this.flow = f;
