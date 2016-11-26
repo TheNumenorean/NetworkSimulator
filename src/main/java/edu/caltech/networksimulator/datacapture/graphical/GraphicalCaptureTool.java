@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -113,22 +114,43 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 	}
 	
 	@Override
+	public void setMax(NetworkComponent n, String dataName, int value) {
+		setMax(n, dataName, (long)value);
+	}
+
+	@Override
+	public void setMax(NetworkComponent n, String dataName, long value) {
+		setMax(n, dataName, (double)value);
+	}
+
+	@Override
+	public void setMax(NetworkComponent n, String dataName, double value) {
+		getComponentContainer(n).g.setMaxValue(dataName, value);
+	}
+	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		System.out.println(e.getWheelRotation());
+		for(Entry<String, NetworkComponentContainer> comp : components.entrySet())
+			comp.getValue().zoom(e.getWheelRotation());
 	}
 
 	private class NetworkComponentContainer extends JComponent {
 
+		private static final long DEFAULT_DATA_RANGE = 10000;
+		private static final long DATA_STEP_SIZE = 500;
+		
+		private long dataRange;
 		public Graph g;
 		public Legend legend;
+
 		
 		public NetworkComponentContainer(String name) {
 
 			this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 			this.setBackground(Color.GREEN);
-			//this.setSize(GRAPH_WIDTH + 100, GRAPH_HEIGHT + 100);
 
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			
+			dataRange = DEFAULT_DATA_RANGE;
 
 			add(new JLabel(name));
 
@@ -136,7 +158,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			legend = new Legend();
 			legend.setMaximumSize(new Dimension(GRAPH_WIDTH, 100));
 			
-			g = new Graph(legend);
+			g = new Graph(legend, dataRange);
 			g.setMaximumSize(new Dimension(GRAPH_WIDTH, GRAPH_HEIGHT));
 			g.setMinimumSize(new Dimension(GRAPH_WIDTH, GRAPH_HEIGHT));
 			this.add(g);
@@ -152,27 +174,13 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		public void addValue(String dataName, long time, double value) {
 			g.addValue(dataName, time, value);
 		}
-
-		@Override
-		public void paintComponent(Graphics g) {
-			super.paintComponent(g);
+		
+		public void zoom(int steps) {
+			dataRange += steps*DATA_STEP_SIZE;
+			dataRange = Math.abs(dataRange);
+			g.setDataRange(dataRange);
 		}
 
-	}
-
-	@Override
-	public void setMax(NetworkComponent n, String dataName, int value) {
-		setMax(n, dataName, (long)value);
-	}
-
-	@Override
-	public void setMax(NetworkComponent n, String dataName, long value) {
-		setMax(n, dataName, (double)value);
-	}
-
-	@Override
-	public void setMax(NetworkComponent n, String dataName, double value) {
-		getComponentContainer(n).g.setMaxValue(dataName, value);
 	}
 
 }
