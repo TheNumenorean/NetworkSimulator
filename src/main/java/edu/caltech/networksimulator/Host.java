@@ -36,6 +36,10 @@ public class Host extends NetworkComponent implements Addressable  {
 	@Override
 	public void run() {
 		
+		for (DataCaptureTool dc : getDataCollectors()) {	
+			dc.setMax(this, "Flow Index", flow.getTotalPackets());
+		}
+		
 		while(!super.receivedStop()) {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
