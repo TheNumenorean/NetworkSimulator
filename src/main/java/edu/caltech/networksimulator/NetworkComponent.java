@@ -65,6 +65,7 @@ public abstract class NetworkComponent implements Runnable, Comparable<NetworkCo
 		return dataCollectors;
 	}
 	
+	@Override
 	public int compareTo(NetworkComponent n) {
 		return n.name.compareTo(name);
 	}

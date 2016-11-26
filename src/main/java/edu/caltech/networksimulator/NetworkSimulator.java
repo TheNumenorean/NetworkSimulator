@@ -103,7 +103,7 @@ public class NetworkSimulator implements Runnable {
 			r3.addRouting(l4, l2);
 			this.addComponent(r2);
 		} else {
-			System.out.println("ERROR: Test case not recognized.");
+			throw new NetworkException("Test case not recognized.");
 		}
 	}
 
@@ -113,14 +113,14 @@ public class NetworkSimulator implements Runnable {
 	public static void main(String[] args) {
 
 		// Set up case 0
-		NetworkSimulator sim = new NetworkSimulator(0);
+		//NetworkSimulator sim = new NetworkSimulator(0);
 		// run the simulation
-		sim.run();
+		//sim.run();
 		
 		// Set up case 1
-		// NetworkSimulator sim2 = new NetworkSimulator(1);
+		NetworkSimulator sim2 = new NetworkSimulator(1);
 		// run case 1
-		// sim2.run();
+		sim2.run();
 		
 		
 		// TODO: record data for user-specified simulation variables

@@ -3,8 +3,11 @@
  */
 package edu.caltech.networksimulator;
 
+
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
@@ -29,6 +32,9 @@ public class Router extends NetworkComponent implements Addressable {
 	// Routing table as map
 	private Map<NetworkComponent, NetworkComponent> routingTable;
 	
+	// for keeping track of which links we are directly connected to
+	private Set<Link> connectedLinks;
+	
 	/**
 	 * 
 	 */
@@ -36,6 +42,7 @@ public class Router extends NetworkComponent implements Addressable {
 		super(name);
 		// how to initialize map?
 		routingTable = new TreeMap<NetworkComponent, NetworkComponent>();
+		connectedLinks = new TreeSet<Link>();
 	}
 	
 	/*
@@ -68,9 +75,17 @@ public class Router extends NetworkComponent implements Addressable {
 	
 	// Makes a static routing table
 	public void addRouting(Link from, Link to) {
+		if (!this.connectedLinks.contains(from)) {
+			// first time this router has seen this link
+			from.setConnection(this);
+			this.connectedLinks.add(from);
+		}
+		if (!this.connectedLinks.contains(to)) {
+			// first time this router has seen this link
+			to.setConnection(this);
+			this.connectedLinks.add(to);
+		}
 		this.routingTable.put(from, to);
-		from.setConnection(this);
-		to.setConnection(this);
 	}
 
 	@Override
