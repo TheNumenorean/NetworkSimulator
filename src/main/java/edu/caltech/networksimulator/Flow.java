@@ -43,7 +43,6 @@ public class Flow {
 		this.dest = dest;
 		this._id = _id;
 		this.data_size = data_size;
-		// 1000 = millis in second
 		this.start_at = System.currentTimeMillis() + start_delay;
 		// convert MB to bytes then divide then round up
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
@@ -79,6 +78,10 @@ public class Flow {
 	
 	public boolean isDone() {
 		return this.i >= this.num_packets;
+	}
+	
+	public void updateWindowSize(){
+		
 	}
 
 }
