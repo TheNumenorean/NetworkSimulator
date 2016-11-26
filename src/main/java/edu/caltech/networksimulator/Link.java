@@ -185,7 +185,7 @@ public class Link extends NetworkComponent {
 		} else {
 			droppedPackets++;
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
-					1 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
+					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 			
 			lastPacketDropped = System.currentTimeMillis();
 			System.out
