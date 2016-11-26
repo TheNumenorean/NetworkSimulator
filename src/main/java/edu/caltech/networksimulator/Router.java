@@ -12,7 +12,7 @@ import java.util.TreeSet;
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
 /**
- * @author Francesco
+ * @author Francesco, Carly
  *
  * Routers represent the network equipment that sits between hosts.
  * 

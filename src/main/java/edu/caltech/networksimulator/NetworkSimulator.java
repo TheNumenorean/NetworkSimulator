@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import edu.caltech.networksimulator.datacapture.graphical.GraphicalCaptureTool;
 
 /**
- * @author Francesco
+ * @author Francesco, Carly
  *
  */
 public class NetworkSimulator implements Runnable {
@@ -39,7 +39,7 @@ public class NetworkSimulator implements Runnable {
 		// for now: use the case specified to set up the network
 		if (testcase == 0) {
 			// create link
-			Link l = new Link("Link1", 10000000, 1000, 3000);// 3000 // 64000);
+			Link l = new Link("Link1", 10000000, 1000, 64000); // 3000
 			this.addComponent(l);
 		
 			// Add source
@@ -113,14 +113,14 @@ public class NetworkSimulator implements Runnable {
 	public static void main(String[] args) {
 
 		// Set up case 0
-		//NetworkSimulator sim = new NetworkSimulator(0);
+		NetworkSimulator sim = new NetworkSimulator(0);
 		// run the simulation
-		//sim.run();
+		sim.run();
 		
 		// Set up case 1
-		NetworkSimulator sim2 = new NetworkSimulator(1);
+		//NetworkSimulator sim2 = new NetworkSimulator(1);
 		// run case 1
-		sim2.run();
+		//sim2.run();
 		
 		
 		// TODO: record data for user-specified simulation variables

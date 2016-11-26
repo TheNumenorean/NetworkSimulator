@@ -61,13 +61,21 @@ public class Flow {
 	}
 	
 	public void recievedPacket(Packet p) {
+		System.out.println(p.getPayload() + " flow index" + this.i);
 		// Algorithm: send same packet at a time until done.
 		if (p.getPayload().equals("ACK" + this.i)) {
 			this.i = this.i + 1;
 			this.numSent = 0;
+			this.window += 1;
+		} else {
+		// It wasn't the right packet, assumed we dropped one.
+		// TODO: Make this detection better
+			this.window = Math.max(getWindow() - 1, 1);
 		}
+		System.out.println("window size: " + getWindow());
 	}
 	
+	@Override
 	public String toString() {
 		return "{Src: " + src + " Dest: " + dest + "}";
 	}
@@ -76,12 +84,16 @@ public class Flow {
 		return this.i;
 	}
 	
-	public boolean isDone() {
-		return this.i >= this.num_packets;
+	public int getWindow() {
+		return this.window;
 	}
 	
-	public void updateWindowSize(){
-		
+	public int getNumSent() {
+		return this.numSent;
+	}
+	
+	public boolean isDone() {
+		return this.i >= this.num_packets;
 	}
 
 }
