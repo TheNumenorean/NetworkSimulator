@@ -3,6 +3,7 @@
  */
 package edu.caltech.networksimulator;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureTool;
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
 /**
@@ -34,6 +35,10 @@ public class Host extends NetworkComponent implements Addressable  {
 	 */
 	@Override
 	public void run() {
+		
+		for (DataCaptureTool dc : getDataCollectors()) {	
+			dc.setMax(this, "Flow Index", flow.getTotalPackets());
+		}
 		
 		while(!super.receivedStop()) {
 			if (flow != null) {

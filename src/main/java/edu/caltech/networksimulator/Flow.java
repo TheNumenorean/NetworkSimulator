@@ -68,12 +68,17 @@ public class Flow {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		return "{Src: " + src + " Dest: " + dest + "}";
 	}
 	
 	public long getIndex() {
 		return this.i;
+	}
+	
+	public long getTotalPackets() {
+		return num_packets;
 	}
 	
 	public boolean isDone() {
