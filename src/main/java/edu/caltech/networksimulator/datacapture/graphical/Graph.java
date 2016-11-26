@@ -5,6 +5,8 @@ package edu.caltech.networksimulator.datacapture.graphical;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.AbstractMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -20,7 +22,7 @@ import javax.swing.JComponent;
  * @author Francesco
  *
  */
-public class Graph extends JComponent {
+public class Graph extends JComponent implements MouseWheelListener {
 
 
 	TreeMap<String, DataLine> data;
@@ -54,6 +56,8 @@ public class Graph extends JComponent {
 		colors.add(Color.WHITE);
 		colors.add(Color.YELLOW);
 		colors.add(Color.BLACK);
+		
+		this.addMouseWheelListener(this);
 
 	}
 	
@@ -76,6 +80,12 @@ public class Graph extends JComponent {
 		}
 		
 		return line;
+	}
+	
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		System.out.println(e.getWheelRotation());
 	}
 	
 	@Override
@@ -163,5 +173,7 @@ public class Graph extends JComponent {
 		}
 
 	}
+
+
 
 }

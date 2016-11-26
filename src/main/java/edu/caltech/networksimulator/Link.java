@@ -29,6 +29,8 @@ public class Link extends NetworkComponent {
 	private static final int IDLE = 0, SENDING_FROM_1 = 1, SENDING_FROM_2 = 2;
 
 	private int sentPackets, droppedPackets;
+	
+	private long lastPacketDropped, lastPacketSent;
 
 	private NetworkComponent end1, end2;
 
@@ -57,16 +59,21 @@ public class Link extends NetworkComponent {
 
 		sentPackets = 0;
 		droppedPackets = 0;
-		this.currentSize = 0;
+		currentSize = 0;
+		
+		lastPacketDropped = System.currentTimeMillis();
+		lastPacketSent = System.currentTimeMillis();
 
 		// Initialize data capture tools
 		for (DataCaptureTool dc : getDataCollectors()) {
 			
 			dc.addData(this, "Sent Packets", System.currentTimeMillis(),
-					sentPackets);
+					0);
 			dc.addData(this, "Dropped Packets", System.currentTimeMillis(),
-					droppedPackets);
+					0);
 			dc.addData(this, "Buffer Size", System.currentTimeMillis(), currentSize);
+			dc.setMax(this, "Sent Packets", 1);
+			dc.setMax(this, "Dropped Packets", 1);
 			dc.setMax(this, "Buffer Size", bufferSize);
 		}
 	}
@@ -79,10 +86,8 @@ public class Link extends NetworkComponent {
 			end1 = comp;
 		else if (end2 == null)
 			end2 = comp;
-//		else {
-//			if (!end1.equals(comp) && !end2.equals(comp))
-//				//throw new NetworkException("Links can only link 2 network components");
-//		}
+		else
+			throw new NetworkException("Links can only link 2 network components");
 	}
 
 	/*
@@ -146,10 +151,13 @@ public class Link extends NetworkComponent {
 			sentPackets++;
 
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis(),
-					sentPackets);
+					1.0 / (System.currentTimeMillis() - this.lastPacketSent + 1));
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
 					currentSize);
 
+			
+			lastPacketSent= System.currentTimeMillis();
+			
 			if (queue.isEmpty())
 				linkState = IDLE;
 
@@ -177,7 +185,9 @@ public class Link extends NetworkComponent {
 		} else {
 			droppedPackets++;
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis(),
-					droppedPackets);
+					1 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
+			
+			lastPacketDropped = System.currentTimeMillis();
 			System.out
 					.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
