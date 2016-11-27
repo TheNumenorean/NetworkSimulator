@@ -9,8 +9,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
-
 /**
  * @author Francesco, Carly
  *
@@ -72,7 +70,11 @@ public class Router extends NetworkComponent implements Addressable {
 		System.out.println(
 				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 		// *Look up in the routing table*
-		routingTable.get(p.getDest()).offerPacket(p, this);
+		NetworkComponent l = routingTable.get(p.getDest());
+		if(l != null)
+			l.offerPacket(p, this);
+		else
+			System.out.println("Router " + this + " dropping packet: no routing entry");
 	}
 	
 	
