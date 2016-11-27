@@ -3,6 +3,8 @@
  */
 package edu.caltech.networksimulator;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
+
 /**
  * @author Carly
  *
@@ -23,25 +25,26 @@ public class Flow {
 	private static final String ctrl_alg = "Naive"; // for example
 	// probably want src as a networkComponent
 	private final long src, dest;
-	private final int _id;
+	private final int id;
 	private final long data_size;
 	private final long start_at;
 	private final long num_packets;
-	private long i; // how far along we are in the flow
+	private int i; // how far along we are in the flow
 	private int window;
 	private int numSent;
+	private long maxRTT;
 	
 	/**
 	 * @param src The source IP
 	 * @param dest The destination IP
-	 * @param _id The ID number of the flow
+	 * @param id The ID number of the flow
 	 * @param data_size The amount of data to send as part of this flow, in MB
 	 * @param start_delay The delay in starting to send this flow, in millis
 	 */
-	public Flow(long src, long dest, int _id, long data_size, long start_delay) {
+	public Flow(long src, long dest, int id, long data_size, long start_delay) {
 		this.src = src;
 		this.dest = dest;
-		this._id = _id;
+		this.id = id;
 		this.data_size = data_size;
 		this.start_at = System.currentTimeMillis() + start_delay;
 		// convert MB to bytes then divide then round up
@@ -55,7 +58,7 @@ public class Flow {
 	public Packet getPacket() {
 		if ((this.start_at < System.currentTimeMillis()) && (!this.isDone()) && (this.numSent < this.window)) {
 			this.numSent++;
-			return new Packet(this.src, this.dest, "DOOM" + this.i);
+			return new Packet(this.src, this.dest, "DOOM", this.i, this.id);
 		}
 		return null;
 	}
@@ -73,6 +76,7 @@ public class Flow {
 			this.window = Math.max(getWindow() - 1, 1);
 		}
 		System.out.println("window size: " + getWindow());
+
 	}
 	
 	@Override

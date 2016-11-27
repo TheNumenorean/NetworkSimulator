@@ -18,8 +18,11 @@ public class Packet {
 	
 	// public static final int CHAR_SIZE = 2;
 	private final long src, dest;
-	private int size;
-	// sent_time
+	private long sent_time;
+	
+	// to identify its flow
+	private final int sequence_number;
+	private final int sequence_id;
 	
 	private String payload;
 	
@@ -29,10 +32,12 @@ public class Packet {
 	 * @param dest The destination IP
 	 * @param payload The contents of the message
 	 */
-	public Packet(long src, long dest, String payload) {
+	public Packet(long src, long dest, String payload, int sequence_number, int sequence_id) {
 		this.src = src;
 		this.dest = dest;
 		this.payload = payload;
+		this.sequence_number = sequence_number;
+		this.sequence_id = sequence_id;
 	}
 	
 	/**
@@ -79,6 +84,27 @@ public class Packet {
 		return src;
 	}
 	
+	/**
+	 * @return the sequence ID
+	 */
+	public long getSeqID() {
+		return sequence_id;
+	}
+	
+	/**
+	 * @return the sequence number
+	 */
+	public long getSeqNum() {
+		return sequence_number;
+	}
+	
+	/**
+	 * @return the sent time
+	 */
+	public long getSentTime() {
+		return sent_time;
+	}
+	
 	@Override
 	public String toString() {
 		return "{Src: " + getSrc() + " Dest: " + getDest() + " Payload: " + getPayload() + "}";
@@ -87,5 +113,14 @@ public class Packet {
 	public long getPacketSizeBits() {
 		return 8 * getPacketSize();
 	}
+	
+	public void setSendTime() {
+		this.sent_time = System.currentTimeMillis();
+	}
+	
+	public Packet getACK() {
+		return new Packet(this.dest, this.src, "ACK", this.sequence_number, this.sequence_id);
+	}
 
+	
 }
