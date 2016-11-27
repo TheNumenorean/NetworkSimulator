@@ -52,6 +52,10 @@ public class Host extends NetworkComponent implements Addressable {
 
 				DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Index", System.currentTimeMillis(),
 						flow.getIndex());
+				DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
+						flow.getWindow());
+				DataCaptureToolHelper.addData(getDataCollectors(), this, "Num Sent", System.currentTimeMillis(),
+						flow.getNumSent());
 			}
 
 			// Dont run too often
