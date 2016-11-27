@@ -223,6 +223,10 @@ public class Link extends NetworkComponent {
 			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2 + "}";
 		}
 	}
+	
+	public long getBufferSize() {
+		return bufferSize;
+	}
 
 	private class Sendable {
 
