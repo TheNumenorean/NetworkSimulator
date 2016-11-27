@@ -131,6 +131,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		for(Entry<String, NetworkComponentContainer> comp : components.entrySet())
 			comp.getValue().zoom(e.getWheelRotation());
+		this.repaint();
 	}
 
 	private class NetworkComponentContainer extends JComponent {
