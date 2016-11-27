@@ -74,6 +74,8 @@ public class Router extends NetworkComponent implements Addressable {
 		}
 		
 		
+		
+		
 	}
 
 	/*
@@ -115,10 +117,6 @@ public class Router extends NetworkComponent implements Addressable {
 			l.offerPacket(p, this);
 		else
 			System.out.println("Router " + this + " dropping packet: no routing entry");
-	}
-
-	public void addRouting(long ip, Link l) {
-		routingTable.put(ip, l);
 	}
 
 	@Override
