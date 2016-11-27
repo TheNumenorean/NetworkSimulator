@@ -33,7 +33,7 @@ public class Router extends NetworkComponent implements Addressable {
 
 	// for keeping track of which links we are directly connected to
 	private Set<Link> connectedLinks;
-	private Map<Link, ComponentType> linkTypes;
+	private Set<Link> hostLinks, switchLinks;
 
 	private boolean routingTableBuilt;
 
@@ -60,9 +60,9 @@ public class Router extends NetworkComponent implements Addressable {
 
 		Packet p = new Packet(ip, -1, "HELLO");
 
-		while (linkTypes.size() != connectedLinks.size()) {
+		while (hostLinks.size() + switchLinks.size() != connectedLinks.size()) {
 			for (Link l : connectedLinks) {
-				if (!linkTypes.containsKey(l))
+				if (!hostLinks.contains(l) && !switchLinks.contains(l))
 					l.offerPacket(p, this);
 			}
 			
@@ -72,6 +72,8 @@ public class Router extends NetworkComponent implements Addressable {
 				e.printStackTrace();
 			}
 		}
+		
+		
 	}
 
 	/*
@@ -87,13 +89,22 @@ public class Router extends NetworkComponent implements Addressable {
 				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 		
 		if(p.getPayload().startsWith("HELLO")) {
-			n.offerPacket(new Packet(ip, -1, "HI " + ComponentType.HOST), this);
+			n.offerPacket(new Packet(ip, -1, "HI " + ComponentType.SWITCH), this);
 			return;
 		}
 		
 		if(p.getPayload().startsWith("HI")) {
 			ComponentType type = ComponentType.valueOf(p.getPayload().split(" ")[1]);
-			linkTypes.put((Link) n, type);
+			
+			switch(type) {
+			case SWITCH:
+				switchLinks.add((Link) n);
+				break;
+			case HOST:
+				hostLinks.add((Link) n);
+				break;
+			}
+			
 			routingTable.put(p.getSrc(), n);
 			return;
 		}
