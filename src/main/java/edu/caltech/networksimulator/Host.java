@@ -9,12 +9,13 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 /**
  * @authors Francesco, Carly
  *
- *  Hosts represent individual endpoint computers, like desktop computers or servers.
- *  
- *  Hosts will have at most one link connected.
+ *          Hosts represent individual endpoint computers, like desktop
+ *          computers or servers.
+ * 
+ *          Hosts will have at most one link connected.
  */
-public class Host extends NetworkComponent implements Addressable  {
-	
+public class Host extends NetworkComponent implements Addressable {
+
 	private long macAddress;
 	private long ip;
 	private Link link;
@@ -30,29 +31,29 @@ public class Host extends NetworkComponent implements Addressable  {
 		macAddress = physicalAddr;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Runnable#run()
 	 */
 	@Override
 	public void run() {
-		
-		for (DataCaptureTool dc : getDataCollectors()) {	
-			dc.setMax(this, "Flow Index", flow.getTotalPackets());
-		}
-		
-		while(!super.receivedStop()) {
+
+		if (flow != null)
+			for (DataCaptureTool dc : getDataCollectors())
+				dc.setMax(this, "Flow Index", flow.getTotalPackets());
+
+		while (!super.receivedStop()) {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
 				if (nextPacket != null) {
 					link.offerPacket(nextPacket, this);
 				}
-				
+
 				DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Index", System.currentTimeMillis(),
 						flow.getIndex());
 			}
-			
-			
-			
+
 			// Dont run too often
 			try {
 				Thread.sleep(500);
@@ -64,8 +65,12 @@ public class Host extends NetworkComponent implements Addressable  {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see edu.caltech.networksimulator.NetworkComponent#offerPacket(edu.caltech.networksimulator.Packet)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * edu.caltech.networksimulator.NetworkComponent#offerPacket(edu.caltech.
+	 * networksimulator.Packet)
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
@@ -74,9 +79,8 @@ public class Host extends NetworkComponent implements Addressable  {
 		if (!(message.substring(0, 3).equals("ACK"))) {
 			// Send an acknowledgement to the original message
 			// Switch source and destination
-			n.offerPacket(new Packet(p.getDest(), p.getSrc(), 
-					"ACK" + message.substring(4)), this);
-				// last char
+			n.offerPacket(new Packet(p.getDest(), p.getSrc(), "ACK" + message.substring(4)), this);
+			// last char
 		} else { // payload is ACK, inform the flow
 			flow.recievedPacket(p);
 		}
@@ -100,19 +104,19 @@ public class Host extends NetworkComponent implements Addressable  {
 	public long getIP() {
 		return ip;
 	}
-	
+
 	public void setIP(long ip) {
 		this.ip = ip;
 	}
-	
+
 	public void addFlow(Flow f) {
 		System.out.println(getComponentName() + " recieved flow f: " + f);
 		this.flow = f;
 	}
-	
+
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof Host && ((Host)o).getMACAddress() == macAddress;
+		return o instanceof Host && ((Host) o).getMACAddress() == macAddress;
 	}
 
 }
