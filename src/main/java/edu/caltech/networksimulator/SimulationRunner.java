@@ -99,19 +99,29 @@ public class SimulationRunner {
 		// Add routers
 		Router r1 = new Router("Router 1");
 		r1.setIP(3);
+		r1.addLink(l0);
+		r1.addLink(l1);
+		r1.addLink(l2);
 		sim.addComponent(r1);
 
-		Router r4 = new Router("Router 4");
-		r1.setIP(4);
-		sim.addComponent(r4);
-
 		Router r2 = new Router("Router 2");
-		r1.setIP(5);
+		r2.setIP(5);
+		r2.addLink(l1);
+		r2.addLink(l4);
 		sim.addComponent(r2);
 
 		Router r3 = new Router("Router 3");
 		r3.setIP(6);
-		sim.addComponent(r2);
+		r3.addLink(l2);
+		r3.addLink(l3);
+		sim.addComponent(r3);
+		
+		Router r4 = new Router("Router 4");
+		r4.setIP(4);
+		r4.addLink(l5);
+		r4.addLink(l3);
+		r4.addLink(l4);
+		sim.addComponent(r4);
 	}
 
 	public static void setupCase2(NetworkSimulator sim) {
