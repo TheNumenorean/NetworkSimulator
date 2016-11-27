@@ -107,8 +107,6 @@ public class Graph extends JComponent {
 		public long timeRange;
 
 		private double maxValue;
-		private long lastTime;
-		private long lastUpdate;
 
 		/**
 		 * Creates a new data line with the given color
@@ -135,8 +133,6 @@ public class Graph extends JComponent {
 
 		public void addValue(long time, double value) {
 			values.put(time, value);
-			lastTime = time;
-			lastUpdate = System.currentTimeMillis();
 			if (value > maxValue)
 				maxValue = value;
 		}
