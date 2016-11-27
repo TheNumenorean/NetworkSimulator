@@ -98,25 +98,19 @@ public class SimulationRunner {
 
 		// Add routers
 		Router r1 = new Router("Router 1");
-		r1.addRouting(l0, l1);
-		r1.addRouting(l1, l0);
-		r1.addRouting(l2, l0);
+		r1.setIP(3);
 		sim.addComponent(r1);
 
 		Router r4 = new Router("Router 4");
-		r4.addRouting(l3, l5);
-		r4.addRouting(l4, l5);
-		r4.addRouting(l5, l4);
+		r1.setIP(4);
 		sim.addComponent(r4);
 
 		Router r2 = new Router("Router 2");
-		r2.addRouting(l1, l3);
-		r2.addRouting(l3, l1);
+		r1.setIP(5);
 		sim.addComponent(r2);
 
 		Router r3 = new Router("Router 3");
-		r3.addRouting(l2, l4);
-		r3.addRouting(l4, l2);
+		r3.setIP(6);
 		sim.addComponent(r2);
 	}
 

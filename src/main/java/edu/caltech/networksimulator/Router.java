@@ -30,10 +30,12 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 public class Router extends NetworkComponent implements Addressable {
 	
 	// Routing table as map
-	private Map<NetworkComponent, NetworkComponent> routingTable;
+	private Map<Integer, NetworkComponent> routingTable;
 	
 	// for keeping track of which links we are directly connected to
 	private Set<Link> connectedLinks;
+
+	private long ip;
 	
 	/**
 	 * 
@@ -41,7 +43,7 @@ public class Router extends NetworkComponent implements Addressable {
 	public Router(String name) {
 		super(name);
 		// how to initialize map?
-		routingTable = new TreeMap<NetworkComponent, NetworkComponent>();
+		routingTable = new TreeMap<Integer, NetworkComponent>();
 		connectedLinks = new TreeSet<Link>();
 	}
 	
@@ -70,40 +72,36 @@ public class Router extends NetworkComponent implements Addressable {
 		System.out.println(
 				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 		// *Look up in the routing table*
-		routingTable.get(n).offerPacket(p, this);
+		routingTable.get(p.getDest()).offerPacket(p, this);
 	}
 	
-	// Makes a static routing table
-	public void addRouting(Link from, Link to) {
-		if (!this.connectedLinks.contains(from)) {
-			// first time this router has seen this link
-			from.setConnection(this);
-			this.connectedLinks.add(from);
-		}
-		if (!this.connectedLinks.contains(to)) {
-			// first time this router has seen this link
-			to.setConnection(this);
-			this.connectedLinks.add(to);
-		}
-		this.routingTable.put(from, to);
+	
+	public void addRouting(int ip, Link l) {
+		routingTable.put(ip, l);
 	}
 
 	@Override
 	public long getMACAddress() {
-		// TODO Auto-generated method stub
-		return 0;
+		return -1;
 	}
-
+	
 	@Override
 	public long getIP() {
-		// TODO Auto-generated method stub
-		return 0;
+		return ip;
 	}
 
+	public void setIP(long ip) {
+		this.ip = ip;
+	}
+	
 	@Override
 	public boolean finished() {
-		// TODO Auto-generated method stub
 		return true;
+	}
+	
+	public void addLink(Link l) {
+		connectedLinks.add(l);
+		l.setConnection(this);
 	}
 
 
