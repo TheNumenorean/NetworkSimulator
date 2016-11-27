@@ -23,6 +23,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 public class Flow {
 	
 	private static final String ctrl_alg = "Naive"; // for example
+	private static final long RT_timeout = 500;
 	// probably want src as a networkComponent
 	private final long src, dest;
 	private final int id;
@@ -63,7 +64,7 @@ public class Flow {
 		return null;
 	}
 	
-	public void recievedPacket(Packet p) {
+	public void recievedACK(Packet p) {
 		System.out.println(p.getPayload() + " flow index" + this.i);
 		// Algorithm: send same packet at a time until done.
 		if (p.getPayload().equals("ACK" + this.i)) {

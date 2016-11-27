@@ -47,7 +47,7 @@ public class Host extends NetworkComponent implements Addressable {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
 				if (nextPacket != null) {
-					nextPacket.setSendTime();
+					nextPacket.setSentTime();
 					link.offerPacket(nextPacket, this);
 				}
 
@@ -86,11 +86,12 @@ public class Host extends NetworkComponent implements Addressable {
 			n.offerPacket(p.getACK(), this);
 		} else { // payload is ACK, inform the flow
 			// graph some stuff on the packet's behalf
+			System.out.println("P.getsent time: " + p.getSentTime());
 			System.out.println("RTT: " + (System.currentTimeMillis() - p.getSentTime()));
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "RTT", System.currentTimeMillis(),
 					System.currentTimeMillis() - p.getSentTime());
 			
-			flow.recievedPacket(p);
+			flow.recievedACK(p);
 		}
 	}
 

@@ -53,7 +53,7 @@ public class SimulationRunner {
 
 	public static void setupCase0(NetworkSimulator sim) {
 		// create link
-		Link l = new Link("Link1", 10000000, 1000, 64000); // 3000
+		Link l = new Link("Link1", 10000000, 10, 64000); // 3000
 		sim.addComponent(l);
 
 		// Add source

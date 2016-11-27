@@ -114,12 +114,15 @@ public class Packet {
 		return 8 * getPacketSize();
 	}
 	
-	public void setSendTime() {
+	public void setSentTime() {
+		System.out.println("setting packet time");
 		this.sent_time = System.currentTimeMillis();
 	}
 	
 	public Packet getACK() {
-		return new Packet(this.dest, this.src, "ACK", this.sequence_number, this.sequence_id);
+		Packet p = new Packet(this.dest, this.src, "ACK", this.sequence_number, this.sequence_id);
+		p.sent_time = this.sent_time;
+		return p;
 	}
 
 	
