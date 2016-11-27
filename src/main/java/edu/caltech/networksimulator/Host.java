@@ -3,6 +3,8 @@
  */
 package edu.caltech.networksimulator;
 
+import java.util.Map;
+
 import edu.caltech.networksimulator.datacapture.DataCaptureTool;
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
@@ -21,6 +23,10 @@ public class Host extends NetworkComponent implements Addressable {
 	private Link link;
 	private Flow flow;
 
+	// Stuff for responding to requests
+	// Map between flow IDs and sequence numbers
+	private Map<String, NetworkComponent> routingTable;
+	
 	/**
 	 * @param name
 	 */
@@ -81,17 +87,18 @@ public class Host extends NetworkComponent implements Addressable {
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
 		String message = p.getPayload();
-		if (!(message.equals("ACK"))) {
-			// Send an acknowledgement to the original message made from the original message
-			n.offerPacket(p.getACK(), this);
-		} else { // payload is ACK, inform the flow
-			// graph some stuff on the packet's behalf
-			System.out.println("P.getsent time: " + p.getSentTime());
-			System.out.println("RTT: " + (System.currentTimeMillis() - p.getSentTime()));
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "RTT", System.currentTimeMillis(),
+		if (p.getDest() == this.ip) { // message meant for us
+			if (!(message.equals("ACK"))) {
+				// Send an acknowledgement to the original message made from the original message
+				n.offerPacket(p.getACK(), this);
+			} else { // payload is ACK, inform the flow
+				// graph some stuff on the packet's behalf
+				//System.out.println("RTT: " + (System.currentTimeMillis() - p.getSentTime()));
+				DataCaptureToolHelper.addData(getDataCollectors(), this, "RTT", System.currentTimeMillis(),
 					System.currentTimeMillis() - p.getSentTime());
 			
-			flow.recievedACK(p);
+				flow.recievedACK(p);
+			}
 		}
 	}
 

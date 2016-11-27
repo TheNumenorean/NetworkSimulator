@@ -26,7 +26,7 @@ public class Flow {
 	private static final long RT_timeout = 500;
 	// probably want src as a networkComponent
 	private final long src, dest;
-	private final int id;
+	private final String id;
 	private final long data_size;
 	private final long start_at;
 	private final long num_packets;
@@ -42,7 +42,7 @@ public class Flow {
 	 * @param data_size The amount of data to send as part of this flow, in MB
 	 * @param start_delay The delay in starting to send this flow, in millis
 	 */
-	public Flow(long src, long dest, int id, long data_size, long start_delay) {
+	public Flow(long src, long dest, String id, long data_size, long start_delay) {
 		this.src = src;
 		this.dest = dest;
 		this.id = id;

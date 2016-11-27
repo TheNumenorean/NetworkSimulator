@@ -22,7 +22,7 @@ public class Packet {
 	
 	// to identify its flow
 	private final int sequence_number;
-	private final int sequence_id;
+	private final String sequence_id;
 	
 	private String payload;
 	
@@ -32,7 +32,7 @@ public class Packet {
 	 * @param dest The destination IP
 	 * @param payload The contents of the message
 	 */
-	public Packet(long src, long dest, String payload, int sequence_number, int sequence_id) {
+	public Packet(long src, long dest, String payload, int sequence_number, String sequence_id) {
 		this.src = src;
 		this.dest = dest;
 		this.payload = payload;
@@ -87,7 +87,7 @@ public class Packet {
 	/**
 	 * @return the sequence ID
 	 */
-	public long getSeqID() {
+	public String getSeqID() {
 		return sequence_id;
 	}
 	
@@ -115,7 +115,6 @@ public class Packet {
 	}
 	
 	public void setSentTime() {
-		System.out.println("setting packet time");
 		this.sent_time = System.currentTimeMillis();
 	}
 	
