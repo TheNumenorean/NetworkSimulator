@@ -94,7 +94,7 @@ public class Packet {
 	/**
 	 * @return the sequence number
 	 */
-	public long getSeqNum() {
+	public int getSeqNum() {
 		return sequence_number;
 	}
 	
@@ -107,7 +107,11 @@ public class Packet {
 	
 	@Override
 	public String toString() {
-		return "{Src: " + getSrc() + " Dest: " + getDest() + " Payload: " + getPayload() + "}";
+		return "{Src: " + getSrc() +
+				" Dest: " + getDest() +
+				" Payload: " + getPayload() +
+				" Sequence ID: " + getSeqID() + 
+				" Sequence Num: " + getSeqNum() + "}";
 	}
 
 	public long getPacketSizeBits() {
@@ -118,8 +122,8 @@ public class Packet {
 		this.sent_time = System.currentTimeMillis();
 	}
 	
-	public Packet getACK() {
-		Packet p = new Packet(this.dest, this.src, "ACK", this.sequence_number, this.sequence_id);
+	public Packet getACK(int seq_num) {
+		Packet p = new Packet(this.dest, this.src, "ACK", seq_num, this.sequence_id);
 		p.sent_time = this.sent_time;
 		return p;
 	}
