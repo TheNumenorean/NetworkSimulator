@@ -11,16 +11,19 @@ import edu.caltech.networksimulator.NetworkComponent;
  */
 public interface DataCaptureTool {
 
-	
 	/**
 	 * Adds data to this DataCaptureTool. Should probably be called outside of
 	 * main thread, since there is no guarantee that the DataCaptureTool will
 	 * return quickly. Consider using DataCaptureToolHelper.
 	 * 
-	 * @param n Component sending the data
-	 * @param dataName Name of the data
-	 * @param time Timestamp of data point
-	 * @param value Value of data point
+	 * @param n
+	 *            Component sending the data
+	 * @param dataName
+	 *            Name of the data
+	 * @param time
+	 *            Timestamp of data point
+	 * @param value
+	 *            Value of data point
 	 */
 	public void addData(NetworkComponent n, String dataName, long time, int value);
 
@@ -29,10 +32,14 @@ public interface DataCaptureTool {
 	 * main thread, since there is no guarantee that the DataCaptureTool will
 	 * return quickly. Consider using DataCaptureToolHelper.
 	 * 
-	 * @param n Component sending the data
-	 * @param dataName Name of the data
-	 * @param time Timestamp of data point
-	 * @param value Value of data point
+	 * @param n
+	 *            Component sending the data
+	 * @param dataName
+	 *            Name of the data
+	 * @param time
+	 *            Timestamp of data point
+	 * @param value
+	 *            Value of data point
 	 */
 	public void addData(NetworkComponent n, String dataName, long time, boolean value);
 
@@ -41,10 +48,14 @@ public interface DataCaptureTool {
 	 * main thread, since there is no guarantee that the DataCaptureTool will
 	 * return quickly. Consider using DataCaptureToolHelper.
 	 * 
-	 * @param n Component sending the data
-	 * @param dataName Name of the data
-	 * @param time Timestamp of data point
-	 * @param value Value of data point
+	 * @param n
+	 *            Component sending the data
+	 * @param dataName
+	 *            Name of the data
+	 * @param time
+	 *            Timestamp of data point
+	 * @param value
+	 *            Value of data point
 	 */
 	public void addData(NetworkComponent n, String dataName, long time, long value);
 
@@ -53,24 +64,44 @@ public interface DataCaptureTool {
 	 * main thread, since there is no guarantee that the DataCaptureTool will
 	 * return quickly. Consider using DataCaptureToolHelper.
 	 * 
-	 * @param n Component sending the data
-	 * @param dataName Name of the data
-	 * @param time Timestamp of data point
-	 * @param value Value of data point
+	 * @param n
+	 *            Component sending the data
+	 * @param dataName
+	 *            Name of the data
+	 * @param time
+	 *            Timestamp of data point
+	 * @param value
+	 *            Value of data point
 	 */
 	public void addData(NetworkComponent n, String dataName, long time, double value);
-	
 
 	/**
-	 * Tells the capture tool the largest value that a given datapoint could have
-	 * @param n Commponent sending data
-	 * @param dataName Name of the data point
-	 * @param value The max value
+	 * Tells the capture tool the largest value that a given datapoint could
+	 * have
+	 * 
+	 * @param n
+	 *            Commponent sending data
+	 * @param dataName
+	 *            Name of the data point
+	 * @param value
+	 *            The max value
 	 */
 	public void setMax(NetworkComponent n, String dataName, int value);
+
 	public void setMax(NetworkComponent n, String dataName, long value);
+
 	public void setMax(NetworkComponent n, String dataName, double value);
-	
-	
+
+	/**
+	 * Tell the data collector to start collecting data. Some implementations
+	 * may not use this.
+	 */
+	public void start();
+
+	/**
+	 * Tell the data collector to finish collecting data. Some implementations
+	 * may not use this.
+	 */
+	public void finish();
 
 }
