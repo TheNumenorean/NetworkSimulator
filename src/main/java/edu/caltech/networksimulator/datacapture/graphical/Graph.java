@@ -141,19 +141,23 @@ public class Graph extends JComponent {
 				maxValue = value;
 		}
 
+		/*
+		 *  Paints this dataline from most recent to least recent to the encapsulating Graph
+		 */
 		public void paint(Graphics g) {
 
 			g.setColor(c);
+			
+			// Let oldx be the end of the graph area, so that the irst line come out of the end of the graph
 			int oldX = Graph.this.getWidth(), lastHeight = -1;
 
-			double scalar = Graph.this.getHeight() / maxValue;
-			
-			long timeSince = System.currentTimeMillis() - lastUpdate;
+			//Adding -2 accounts for border
+			double scalar = (Graph.this.getHeight() - 2) / maxValue;
 			
 			for(Entry<Long, Double> dat : values.entrySet()) {
 				
 				
-				int newHeight = (int) (Graph.this.getHeight() - dat.getValue() * scalar);
+				int newHeight = (int) (Graph.this.getHeight() - 2 - dat.getValue() * scalar);
 				
 				int x = (int) (Graph.this.getWidth() - Graph.this.getWidth() * ((double)(System.currentTimeMillis() - dat.getKey()) / timeRange));
 				
@@ -169,11 +173,6 @@ public class Graph extends JComponent {
 				if(dat.getKey() < System.currentTimeMillis() - timeRange)
 					break;
 			}
-			
-			// Paint a line to the current time
-			//if(timeSince > 0)
-			//	g.drawLine(Graph.this.getWidth() - oldX, Graph.this.getHeight() - lastHeight + 1, Graph.this.getWidth(), Graph.this.getHeight() - lastHeight + 1);
-
 		}
 
 	}
