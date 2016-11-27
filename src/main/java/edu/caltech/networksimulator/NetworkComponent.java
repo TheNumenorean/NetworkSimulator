@@ -14,6 +14,15 @@ import edu.caltech.networksimulator.datacapture.DataCaptureTool;
  */
 public abstract class NetworkComponent implements Runnable, Comparable<NetworkComponent> {
 	
+	/**
+	 * Used to differentiate between hosts and network components which switch between multiple components
+	 * @author Francesco
+	 *
+	 */
+	public static enum ComponentType {
+		HOST, SWITCH;
+	}
+	
 	private String name;
 	
 	private boolean stop;
