@@ -49,10 +49,6 @@ public class Host extends NetworkComponent implements Addressable {
 	@Override
 	public void run() {
 
-		if (flow != null)
-			for (DataCaptureTool dc : getDataCollectors())
-				dc.setMax(this, "Flow Index", flow.getTotalPackets());
-
 		while (!super.receivedStop()) {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
@@ -60,13 +56,6 @@ public class Host extends NetworkComponent implements Addressable {
 					nextPacket.setSentTime();
 					link.offerPacket(nextPacket, this);
 				}
-
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Index", System.currentTimeMillis(),
-						flow.getIndex());
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
-						flow.getWindow());
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "Num Sent", System.currentTimeMillis(),
-						flow.getNumSent());
 			}
 
 			// Don't run too often
@@ -92,33 +81,39 @@ public class Host extends NetworkComponent implements Addressable {
 		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
 		String message = p.getPayload();
 		if (p.getDest() == this.ip) { // message meant for us
-			if (!(message.equals("ACK"))) {
+			System.out.println("Packet meant for us");
+			if (!(message.equals("ACK"))) { // Message needs an ACK
+				System.out.println("Packet needs responding to");
 				String id = p.getSeqID();
 				int idx = p.getSeqNum();
 				// If this is the next packet in the sequence, increment the sequence number
 				if (acks.containsKey(id)) { // we have seen this flow before
+					System.out.println("we have seen this flow before");
 					if (acks.get(id) + 1 == idx) { // we got the next packet
 						acks.put(id, idx);
 					} // otherwise, wasn't the next, so don't update last seen
 				} else { // we have not seen the flow before
+					System.out.println("we have not seen this flow before");
 					if (idx == 0) { // start right with the first packet
+						System.out.println("First packet in a new flow");
 						acks.put(id, 0);
+						System.out.println("ACKs: " + acks);
 					} // otherwise started with the wrong one, pretend we didn't see it.
 				}
 				
 				// Send an acknowledgement to the original message made
 				// with the highest sequence number we have gotten so far
 				if (acks.containsKey(id)) { // we have seen flow before
-					n.offerPacket(p.getACK(acks.get(id)), this);
+					Packet ackP = p.getACK(acks.get(id));
+					System.out.println("Offering ack packet: " + ackP);
+					n.offerPacket(ackP, this);
+					//n.offerPacket(p.getACK(acks.get(id)), this);
 				} // otherwise we pretend packet was dropped.
 
-			} else { // payload is ACK, inform the flow
-				// graph some stuff on the packet's behalf
-				//System.out.println("RTT: " + (System.currentTimeMillis() - p.getSentTime()));
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "RTT", System.currentTimeMillis(),
-					System.currentTimeMillis() - p.getSentTime());
-
-				flow.recievedACK(p);
+			} else { // payload is ACK meant for us, inform the flow
+				if (flow != null) {
+					flow.offerPacket(p, this);
+				}
 			}
 		} else if(p.getDest() == -1) {
 			if(p.getPayload().startsWith("HELLO")) {

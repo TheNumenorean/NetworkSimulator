@@ -28,7 +28,7 @@ public class SimulationRunner {
 				return;
 			}
 		} else
-			setupCase(2, sim);
+			setupCase(0, sim);
 		// run the simulation
 		sim.run();
 
