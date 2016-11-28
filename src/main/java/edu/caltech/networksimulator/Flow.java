@@ -61,7 +61,7 @@ public class Flow extends NetworkComponent {
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
 		
 		// Set up the window algorithm
-		setupAlg("Static");
+		setupAlg("Simple");
 		
 		// Set up tracking of where we are in the flow
 		this.idxReceived = -1;
@@ -131,7 +131,6 @@ public class Flow extends NetworkComponent {
 		if ((this.start_at < System.currentTimeMillis()) && // head start over
 			(!this.finished()) && // haven't sent all the packets yet
 			(this.idxReceived + alg.getW() >= this.idxSent)) { // haven't sent all the packets in this window yet
-			
 			// print some stuff
 			System.out.println("Sending packet " + (this.idxSent + 1));
 			// increment the index that we've sent at
@@ -139,9 +138,9 @@ public class Flow extends NetworkComponent {
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
 					this.idxSent);
 			
-			System.out.println("window size: " + alg.getW() +
-					   "\t num recieved: " + idxReceived + 
-					   "\t num sent: " + idxSent);
+//			System.out.println("window size: " + alg.getW() +
+//					   "\t num recieved: " + idxReceived + 
+//					   "\t num sent: " + idxSent);
 			
 			// create and return that packet
 			lastSentTime = System.currentTimeMillis();
@@ -198,9 +197,9 @@ public class Flow extends NetworkComponent {
 				System.currentTimeMillis() - p.getSentTime());
 		
 		// Print some things
-		System.out.println("window size: " + alg.getW() +
-						   "\t num recieved: " + idxReceived + 
-						   "\t num sent: " + idxSent);
+//		System.out.println("window size: " + alg.getW() +
+//						   "\t num recieved: " + idxReceived + 
+//						   "\t num sent: " + idxSent);
 		
 		
 	}

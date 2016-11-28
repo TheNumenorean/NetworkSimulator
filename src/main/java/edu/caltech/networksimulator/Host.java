@@ -81,23 +81,20 @@ public class Host extends NetworkComponent implements Addressable {
 		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
 		String message = p.getPayload();
 		if (p.getDest() == this.ip) { // message meant for us
-			System.out.println("Packet meant for us");
 			if (!(message.equals("ACK"))) { // Message needs an ACK
-				System.out.println("Packet needs responding to");
 				String id = p.getSeqID();
 				int idx = p.getSeqNum();
 				// If this is the next packet in the sequence, increment the sequence number
 				if (acks.containsKey(id)) { // we have seen this flow before
-					System.out.println("we have seen this flow before");
 					if (acks.get(id) + 1 == idx) { // we got the next packet
+						acks.put(id, idx);
+					} else if (acks.get(id) > idx) { // we thought we got a higher idx than
+						// the flow thinks we did
 						acks.put(id, idx);
 					} // otherwise, wasn't the next, so don't update last seen
 				} else { // we have not seen the flow before
-					System.out.println("we have not seen this flow before");
 					if (idx == 0) { // start right with the first packet
-						System.out.println("First packet in a new flow");
 						acks.put(id, 0);
-						System.out.println("ACKs: " + acks);
 					} // otherwise started with the wrong one, pretend we didn't see it.
 				}
 				
@@ -105,7 +102,6 @@ public class Host extends NetworkComponent implements Addressable {
 				// with the highest sequence number we have gotten so far
 				if (acks.containsKey(id)) { // we have seen flow before
 					Packet ackP = p.getACK(acks.get(id));
-					System.out.println("Offering ack packet: " + ackP);
 					n.offerPacket(ackP, this);
 					//n.offerPacket(p.getACK(acks.get(id)), this);
 				} // otherwise we pretend packet was dropped.

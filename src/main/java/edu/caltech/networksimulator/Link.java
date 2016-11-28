@@ -27,7 +27,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 public class Link extends NetworkComponent {
 
 	private static final int IDLE = 0, SENDING_FROM_1 = 1, SENDING_FROM_2 = 2;
-	private static final double DROPPED_FRACTION = 0.0;
+	private static final double DROPPED_FRACTION = 0.1;
 
 	private int sentPackets, droppedPackets;
 	
