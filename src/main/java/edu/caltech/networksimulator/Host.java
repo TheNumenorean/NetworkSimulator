@@ -68,7 +68,7 @@ public class Host extends NetworkComponent implements Addressable {
 						flow.getNumSent());
 			}
 
-			// Dont run too often
+			// Don't run too often
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -124,11 +124,7 @@ public class Host extends NetworkComponent implements Addressable {
 
 	@Override
 	public boolean finished() {
-		if (flow == null) {
-			return true;
-		} else {
-			return flow.isDone();
-		}
+		return true;
 	}
 
 	@Override

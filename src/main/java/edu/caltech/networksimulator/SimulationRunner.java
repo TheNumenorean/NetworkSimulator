@@ -61,6 +61,7 @@ public class SimulationRunner {
 		source.setIP(1);
 		Flow f = new Flow(1, 2, "Flow1", 20, 1000);
 		source.addFlow(f);
+		sim.addComponent(f);
 		sim.addComponent(source);
 
 		// Add sink
@@ -89,6 +90,7 @@ public class SimulationRunner {
 		source2.setIP(1);
 		Flow f2 = new Flow(1, 2, "Flow1", 20, 500);
 		source2.addFlow(f2);
+		sim.addComponent(f2);
 		sim.addComponent(source2);
 
 		// Add sink

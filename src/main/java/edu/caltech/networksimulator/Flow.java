@@ -20,13 +20,12 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
  * user-specifiable amount of data; they may also start immediately or after some
  * user-specifiable delay.
  */
-public class Flow {
+public class Flow extends NetworkComponent {
 	
-	private static final String ctrl_alg = "Naive"; // for example
-	private static final long RT_timeout = 500;
+	private static final String WINDOW_ALG = "None"; // for example
+	private static final long TIMEOUT = 500;
 	// probably want src as a networkComponent
 	private final long src, dest;
-	private final String id;
 	private final long data_size;
 	private final long start_at;
 	private final long num_packets;
@@ -42,10 +41,10 @@ public class Flow {
 	 * @param data_size The amount of data to send as part of this flow, in MB
 	 * @param start_delay The delay in starting to send this flow, in millis
 	 */
-	public Flow(long src, long dest, String id, long data_size, long start_delay) {
+	public Flow(long src, long dest, String name, long data_size, long start_delay) {
+		super(name);
 		this.src = src;
 		this.dest = dest;
-		this.id = id;
 		this.data_size = data_size;
 		this.start_at = System.currentTimeMillis() + start_delay;
 		// convert MB to bytes then divide then round up
@@ -56,15 +55,24 @@ public class Flow {
 		this.window = 5; // fixed window size
 	}
 	
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+	
 	public Packet getPacket() {
-		if ((this.start_at < System.currentTimeMillis()) && (!this.isDone()) && (this.numSent < this.window)) {
+		if ((this.start_at < System.currentTimeMillis()) && (!this.finished()) && (this.numSent < this.window)) {
 			this.numSent++;
-			return new Packet(this.src, this.dest, "DOOM", this.i, this.id);
+			return new Packet(this.src, this.dest, "DOOM", this.i, this.getComponentName());
 		}
 		return null;
 	}
 	
 	public void recievedACK(Packet p) {
+
+		System.out.println("window size: " + getWindow());
+
 		System.out.println(p.getPayload() + " flow index" + this.i);
 		// Algorithm: send same packet at a time until done.
 		if (p.getPayload().equals("ACK" + this.i)) {
@@ -74,10 +82,9 @@ public class Flow {
 		} else {
 		// It wasn't the right packet, assumed we dropped one.
 		// TODO: Make this detection better
-			this.window = Math.max(getWindow() - 1, 1);
+			
 		}
-		System.out.println("window size: " + getWindow());
-
+		
 	}
 	
 	@Override
@@ -101,7 +108,25 @@ public class Flow {
 		return num_packets;
 	}
 	
-	public boolean isDone() {
+	public void adjustWindowSize(boolean dropped) {
+		if (WINDOW_ALG == "Simple") {
+			if (dropped) {
+				this.window = Math.max(getWindow() - 1, 1);
+			} else { // else received
+				this.window += 1;
+			}
+		}
+		return;
+	}
+
+	@Override
+	public void offerPacket(Packet p, NetworkComponent n) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean finished() {
 		return this.i >= this.num_packets;
 	}
 
