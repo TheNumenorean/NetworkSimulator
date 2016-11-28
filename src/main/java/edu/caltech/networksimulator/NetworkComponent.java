@@ -66,11 +66,11 @@ public abstract class NetworkComponent implements Runnable, Comparable<NetworkCo
 		return stop;
 	}
 	
-	void addDataDollector(DataCaptureTool dct) {
+	public void addDataDollector(DataCaptureTool dct) {
 		dataCollectors.add(dct);
 	}
 	
-	List<DataCaptureTool> getDataCollectors() {
+	public List<DataCaptureTool> getDataCollectors() {
 		return dataCollectors;
 	}
 	
