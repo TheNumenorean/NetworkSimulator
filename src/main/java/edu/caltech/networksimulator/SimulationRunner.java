@@ -130,6 +130,8 @@ public class SimulationRunner {
 		sim.addComponent(l1);
 		Link l2 = new Link("Link2", 10000000, 10, 64000); // 3000
 		sim.addComponent(l2);
+		Link l3 = new Link("Link3", 10000000, 10, 64000); // 3000
+		sim.addComponent(l3);
 
 		// Add source
 		Host source = new Host("Host1", l1, 1000);
@@ -144,12 +146,19 @@ public class SimulationRunner {
 		sink.setIP(2);
 		sim.addComponent(sink);
 
-		Router r = new Router("Router 4");
+		Router r = new Router("Router4");
 		r.setIP(4);
 		r.addLink(l1);
-		r.addLink(l2);
+		r.addLink(l3);
 
 		sim.addComponent(r);
+		
+		Router r2 = new Router("Router5");
+		r2.setIP(5);
+		r2.addLink(l3);
+		r2.addLink(l2);
+
+		sim.addComponent(r2);
 	}
 
 	public static void setupCase3(NetworkSimulator sim) {
