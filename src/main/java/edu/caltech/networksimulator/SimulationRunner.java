@@ -17,7 +17,7 @@ public class SimulationRunner {
 	public static void main(String[] args) {
 		// Set up case 0
 		NetworkSimulator sim = new NetworkSimulator();
-		
+
 		sim.addDataCollector(new GraphicalCaptureTool());
 
 		if (args.length > 0) {
@@ -28,7 +28,7 @@ public class SimulationRunner {
 				return;
 			}
 		} else
-			setupCase(0, sim);
+			setupCase(2, sim);
 		// run the simulation
 		sim.run();
 
@@ -115,7 +115,7 @@ public class SimulationRunner {
 		r3.addLink(l2);
 		r3.addLink(l3);
 		sim.addComponent(r3);
-		
+
 		Router r4 = new Router("Router 4");
 		r4.setIP(4);
 		r4.addLink(l5);
@@ -125,7 +125,31 @@ public class SimulationRunner {
 	}
 
 	public static void setupCase2(NetworkSimulator sim) {
+		// create link
+		Link l1 = new Link("Link1", 10000000, 10, 64000); // 3000
+		sim.addComponent(l1);
+		Link l2 = new Link("Link2", 10000000, 10, 64000); // 3000
+		sim.addComponent(l2);
 
+		// Add source
+		Host source = new Host("Host1", l1, 1000);
+		source.setIP(1);
+		Flow f = new Flow(1, 2, "Flow1", 20, 1000);
+		source.addFlow(f);
+
+		sim.addComponent(source);
+
+		// Add sink
+		Host sink = new Host("Host2", l2, 2000);
+		sink.setIP(2);
+		sim.addComponent(sink);
+
+		Router r = new Router("Router 4");
+		r.setIP(4);
+		r.addLink(l1);
+		r.addLink(l2);
+
+		sim.addComponent(r);
 	}
 
 	public static void setupCase3(NetworkSimulator sim) {
