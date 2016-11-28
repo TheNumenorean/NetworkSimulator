@@ -152,7 +152,7 @@ public class Link extends NetworkComponent {
 			sentPackets++;
 
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
-					1.0 / (System.currentTimeMillis() - this.lastPacketSent + 1));
+					1.0 / Math.sqrt(System.currentTimeMillis() - this.lastPacketSent + 1));
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
 					currentSize);
 
@@ -178,8 +178,9 @@ public class Link extends NetworkComponent {
 
 		// keeps packet if the buffer is not full, but drops a small percentage
 		if ((currentSize + p.getPacketSize() <= bufferSize) && (Math.random() > DROPPED_FRACTION)) {
-			System.out.println(
-					getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
+			
+			if(NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
 			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
 			currentSize += p.getPacketSize();
@@ -189,8 +190,9 @@ public class Link extends NetworkComponent {
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 			
 			lastPacketDropped = System.currentTimeMillis();
-			System.out
-					.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
+			
+			if(NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+				System.out.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
 	}
 

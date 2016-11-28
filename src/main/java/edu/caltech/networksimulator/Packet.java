@@ -132,5 +132,9 @@ public class Packet {
 		return p;
 	}
 
+	public boolean isRouting() {
+		return payload.startsWith(Router.ROUTING_PACKET_HEADER);
+	}
+
 	
 }
