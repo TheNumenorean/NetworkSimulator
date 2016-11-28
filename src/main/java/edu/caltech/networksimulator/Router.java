@@ -4,9 +4,11 @@
 package edu.caltech.networksimulator;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 /**
  * @author Francesco, Carly
@@ -28,14 +30,18 @@ import java.util.TreeSet;
  */
 public class Router extends NetworkComponent implements Addressable {
 
+	public static final String IDENTITY_REQUEST_HEADER = "HELLO";
+	public static final String IDENTITY_REQUEST_RESPONSE_HEADER = "HI";
+	public static final String ROUTING_PACKET_HEADER = "ROUTING";
+
 	// Routing table as map
-	private Map<Long, NetworkComponent> routingTable;
+	private Map<Long, Routing> routingTable;
 
 	// for keeping track of which links we are directly connected to
 	private Set<Link> connectedLinks;
-	private Set<Link> hostLinks, switchLinks;
+	private Map<Long, Link> hostLinks, switchLinks;
 
-	private boolean routingTableBuilt;
+	private boolean initialRoutingTableBuilt;
 
 	private long ip;
 
@@ -45,9 +51,12 @@ public class Router extends NetworkComponent implements Addressable {
 	public Router(String name) {
 		super(name);
 		// how to initialize map?
-		routingTable = new TreeMap<Long, NetworkComponent>();
+		routingTable = new ConcurrentSkipListMap<Long, Routing>();
 		connectedLinks = new TreeSet<Link>();
-		routingTableBuilt = false;
+		initialRoutingTableBuilt = false;
+		
+		hostLinks = new TreeMap<Long, Link>();
+		switchLinks = new TreeMap<Long, Link>();
 	}
 
 	/*
@@ -58,14 +67,14 @@ public class Router extends NetworkComponent implements Addressable {
 	@Override
 	public void run() {
 
-		Packet p = new Packet(ip, -1, "HELLO");
+		Packet p = new Packet(ip, -1, IDENTITY_REQUEST_HEADER);
 
 		while (hostLinks.size() + switchLinks.size() != connectedLinks.size()) {
 			for (Link l : connectedLinks) {
-				if (!hostLinks.contains(l) && !switchLinks.contains(l))
+				if (!hostLinks.values().contains(l) && !switchLinks.values().contains(l))
 					l.offerPacket(p, this);
 			}
-			
+
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -73,9 +82,26 @@ public class Router extends NetworkComponent implements Addressable {
 			}
 		}
 		
+		initialRoutingTableBuilt = true;
+
+		System.out.println("Router "  + this + " successfully completed pinging local links");
 		
-		
-		
+		while (!this.receivedStop()) {
+			String payload = "ROUTING";
+
+			for (Entry<Long, Routing> routing : routingTable.entrySet())
+				payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+
+			for (NetworkComponent link : switchLinks.values())
+				link.offerPacket(p, this);
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	/*
@@ -89,34 +115,58 @@ public class Router extends NetworkComponent implements Addressable {
 	public void offerPacket(Packet p, NetworkComponent n) {
 		System.out.println(
 				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
-		
-		if(p.getPayload().startsWith("HELLO")) {
-			n.offerPacket(new Packet(ip, -1, "HI " + ComponentType.SWITCH), this);
-			return;
-		}
-		
-		if(p.getPayload().startsWith("HI")) {
-			ComponentType type = ComponentType.valueOf(p.getPayload().split(" ")[1]);
-			
-			switch(type) {
-			case SWITCH:
-				switchLinks.add((Link) n);
-				break;
-			case HOST:
-				hostLinks.add((Link) n);
-				break;
-			}
-			
-			routingTable.put(p.getSrc(), n);
-			return;
-		}
 
-		// *Look up in the routing table*
-		NetworkComponent l = routingTable.get(p.getDest());
-		if (l != null)
-			l.offerPacket(p, this);
-		else
-			System.out.println("Router " + this + " dropping packet: no routing entry");
+		if (p.getDest() == ip || p.getDest() == -1) {
+
+			if (p.getPayload().startsWith(IDENTITY_REQUEST_HEADER)) {
+				n.offerPacket(new Packet(ip, -1, IDENTITY_REQUEST_RESPONSE_HEADER + " " + ComponentType.SWITCH), this);
+				return;
+			} else if (p.getPayload().startsWith(IDENTITY_REQUEST_RESPONSE_HEADER)) {
+				ComponentType type = ComponentType.valueOf(p.getPayload().split(" ")[1]);
+
+				switch (type) {
+				case SWITCH:
+					switchLinks.put(p.getSrc(), (Link) n);
+					break;
+				case HOST:
+					hostLinks.put(p.getSrc(), (Link) n);
+					routingTable.put(p.getSrc(), new Routing(((Link) n).getBufferFill(), n));
+					break;
+				}
+
+			} else if (p.getPayload().startsWith(ROUTING_PACKET_HEADER)) {
+
+				for (String routing : p.getPayload().substring(ROUTING_PACKET_HEADER.length()).split(" ")) {
+
+					String[] routingElements = routing.split(":");
+
+					try {
+						
+						// Update the routing table iff the ip is not a local host, and the ip either doesnt already exist or the offered one is better.
+
+						Routing newRouting = new Routing(Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
+						long routingIP = Long.parseLong(routingElements[0]);
+						if (!hostLinks.containsKey(routingIP) && (!routingTable.containsKey(routingElements[0]) || routingTable.get(routingElements).cost < newRouting.cost)) {
+							routingTable.put(routingIP, newRouting);
+						}
+						
+					} catch (Exception e) {
+						System.err.println("Received a malformed routing packet!");
+						return;
+					}
+
+				}
+			}
+
+		} else {
+
+			// *Look up in the routing table*
+			Routing l = routingTable.get(p.getDest());
+			if (l != null)
+				l.link.offerPacket(p, this);
+			else
+				System.out.println("Router " + this + " dropping packet: no routing entry");
+		}
 	}
 
 	@Override
@@ -135,12 +185,22 @@ public class Router extends NetworkComponent implements Addressable {
 
 	@Override
 	public boolean finished() {
-		return routingTableBuilt;
+		return initialRoutingTableBuilt;
 	}
 
 	public void addLink(Link l) {
 		connectedLinks.add(l);
 		l.setConnection(this);
+	}
+
+	private class Routing {
+		public double cost;
+		public NetworkComponent link;
+
+		public Routing(double cost, NetworkComponent link) {
+			this.cost = cost;
+			this.link = link;
+		}
 	}
 
 }
