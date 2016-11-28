@@ -33,6 +33,7 @@ public class Router extends NetworkComponent implements Addressable {
 	public static final String IDENTITY_REQUEST_HEADER = "HELLO";
 	public static final String IDENTITY_REQUEST_RESPONSE_HEADER = "HI";
 	public static final String ROUTING_PACKET_HEADER = "ROUTING";
+	private static final long ROUTING_DELAY = 1000;
 
 	// Routing table as map
 	private Map<Long, Routing> routingTable;
@@ -54,7 +55,7 @@ public class Router extends NetworkComponent implements Addressable {
 		routingTable = new ConcurrentSkipListMap<Long, Routing>();
 		connectedLinks = new TreeSet<Link>();
 		initialRoutingTableBuilt = false;
-		
+
 		hostLinks = new TreeMap<Long, Link>();
 		switchLinks = new TreeMap<Long, Link>();
 	}
@@ -76,27 +77,33 @@ public class Router extends NetworkComponent implements Addressable {
 			}
 
 			try {
-				Thread.sleep(500);
+				Thread.sleep(ROUTING_DELAY);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
+
 		initialRoutingTableBuilt = true;
 
-		System.out.println("Router "  + this + " successfully completed pinging local links");
-		
+		System.out.println("Router " + this + " successfully completed pinging local links");
+
 		while (!this.receivedStop()) {
-			String payload = "ROUTING";
 
-			for (Entry<Long, Routing> routing : routingTable.entrySet())
-				payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+			// Only send out routing packets if we have a routing table
+			if (!routingTable.isEmpty()) {
+				String payload = "ROUTING";
 
-			for (NetworkComponent link : switchLinks.values())
-				link.offerPacket(p, this);
+				for (Entry<Long, Routing> routing : routingTable.entrySet())
+					payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+
+				Packet broadcast = new Packet(ip, -1, payload);
+
+				for (NetworkComponent link : switchLinks.values())
+					link.offerPacket(broadcast, this);
+			}
 
 			try {
-				Thread.sleep(500);
+				Thread.sleep(ROUTING_DELAY);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -119,39 +126,54 @@ public class Router extends NetworkComponent implements Addressable {
 		if (p.getDest() == ip || p.getDest() == -1) {
 
 			if (p.getPayload().startsWith(IDENTITY_REQUEST_HEADER)) {
-				n.offerPacket(new Packet(ip, p.getSrc(), IDENTITY_REQUEST_RESPONSE_HEADER + " " + ComponentType.SWITCH), this);
-				
+				n.offerPacket(new Packet(ip, p.getSrc(), IDENTITY_REQUEST_RESPONSE_HEADER + " " + ComponentType.SWITCH),
+						this);
+
 			} else if (p.getPayload().startsWith(IDENTITY_REQUEST_RESPONSE_HEADER)) {
 				ComponentType type = ComponentType.valueOf(p.getPayload().split(" ")[1]);
 
 				switch (type) {
 				case SWITCH:
-					switchLinks.put(p.getSrc(), (Link) n);
+					if (!switchLinks.containsKey(p.getSrc()))
+						switchLinks.put(p.getSrc(), (Link) n);
 					break;
 				case HOST:
-					hostLinks.put(p.getSrc(), (Link) n);
-					routingTable.put(p.getSrc(), new Routing(((Link) n).getBufferFill(), n));
+					if (!hostLinks.containsKey(p.getSrc())) {
+						hostLinks.put(p.getSrc(), (Link) n);
+						routingTable.put(p.getSrc(), new Routing(((Link) n).getBufferFill(), n));
+					}
 					break;
 				}
 
 			} else if (p.getPayload().startsWith(ROUTING_PACKET_HEADER)) {
 
-				for (String routing : p.getPayload().substring(ROUTING_PACKET_HEADER.length()).split(" ")) {
+				String reducedPayload = p.getPayload().substring(ROUTING_PACKET_HEADER.length()).trim();
+				for (String routing : reducedPayload.split(" ")) {
+
+					// An empty routing table was sent
+					if (routing.isEmpty())
+						break;
 
 					String[] routingElements = routing.split(":");
 
 					try {
-						
-						// Update the routing table iff the ip is not a local host, and the ip either doesnt already exist or the offered one is better.
 
-						Routing newRouting = new Routing(Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
+						// Update the routing table iff the ip is not a local
+						// host, and the ip either doesnt already exist or the
+						// offered one is better.
+
+						Routing newRouting = new Routing(
+								Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
 						long routingIP = Long.parseLong(routingElements[0]);
-						if (!hostLinks.containsKey(routingIP) && (!routingTable.containsKey(routingElements[0]) || routingTable.get(routingElements).cost < newRouting.cost)) {
+
+						if (!hostLinks.containsKey(routingIP) && (!routingTable.containsKey(routingIP)
+								|| routingTable.get(routingIP).cost < newRouting.cost)) {
 							routingTable.put(routingIP, newRouting);
 						}
-						
+
 					} catch (Exception e) {
-						System.err.println("Received a malformed routing packet!");
+						System.err.println("Received a malformed routing packet!" + p.getPayload());
+						e.printStackTrace();
 						return;
 					}
 
