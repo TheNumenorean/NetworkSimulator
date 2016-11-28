@@ -6,6 +6,7 @@ package edu.caltech.networksimulator;
 import java.util.Map;
 import java.util.TreeMap;
 
+import edu.caltech.networksimulator.NetworkComponent.ComponentType;
 import edu.caltech.networksimulator.datacapture.DataCaptureTool;
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 
@@ -118,6 +119,10 @@ public class Host extends NetworkComponent implements Addressable {
 					System.currentTimeMillis() - p.getSentTime());
 
 				flow.recievedACK(p);
+			}
+		} else if(p.getDest() == -1) {
+			if(p.getPayload().startsWith("HELLO")) {
+				n.offerPacket(new Packet(ip, p.getSrc(), "HI " + ComponentType.HOST), this);
 			}
 		}
 	}

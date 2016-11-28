@@ -40,6 +40,10 @@ public class Packet {
 		this.sequence_id = sequence_id;
 	}
 	
+	public Packet(long src, long dest, String payload) {
+		this(src, dest, payload, -1, null);
+	}
+
 	/**
 	 * Gets the size of this packet in bytes, caluclated based on the size of the metadata and payload.
 	 * @return The number of bytes this packets contents use
