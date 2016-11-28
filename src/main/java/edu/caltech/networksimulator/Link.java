@@ -27,7 +27,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 public class Link extends NetworkComponent {
 
 	private static final int IDLE = 0, SENDING_FROM_1 = 1, SENDING_FROM_2 = 2;
-	private static final double DROPPED_FRACTION = 0.1;
+	private static final double DROPPED_FRACTION = 0.0;
 
 	private int sentPackets, droppedPackets;
 	
@@ -177,9 +177,9 @@ public class Link extends NetworkComponent {
 	public void offerPacket(Packet p, NetworkComponent n) {
 
 		// keeps packet if the buffer is not full, but drops a small percentage
-		if ((currentSize + p.getPacketSize() <= bufferSize) && (Math.random() > DROPPED_FRACTION)) {
+		if ((currentSize + p.getPacketSize() <= bufferSize) && (Math.random() >= DROPPED_FRACTION)) {
 			
-			if(NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
 			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
@@ -191,7 +191,7 @@ public class Link extends NetworkComponent {
 			
 			lastPacketDropped = System.currentTimeMillis();
 			
-			if(NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
 	}
