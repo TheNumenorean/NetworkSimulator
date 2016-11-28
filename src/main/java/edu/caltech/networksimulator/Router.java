@@ -119,8 +119,8 @@ public class Router extends NetworkComponent implements Addressable {
 		if (p.getDest() == ip || p.getDest() == -1) {
 
 			if (p.getPayload().startsWith(IDENTITY_REQUEST_HEADER)) {
-				n.offerPacket(new Packet(ip, -1, IDENTITY_REQUEST_RESPONSE_HEADER + " " + ComponentType.SWITCH), this);
-				return;
+				n.offerPacket(new Packet(ip, p.getSrc(), IDENTITY_REQUEST_RESPONSE_HEADER + " " + ComponentType.SWITCH), this);
+				
 			} else if (p.getPayload().startsWith(IDENTITY_REQUEST_RESPONSE_HEADER)) {
 				ComponentType type = ComponentType.valueOf(p.getPayload().split(" ")[1]);
 

@@ -40,7 +40,7 @@ public class Packet {
 		this.sequence_id = sequence_id;
 	}
 	
-	public Packet(long src, int dest, String payload) {
+	public Packet(long src, long dest, String payload) {
 		this(src, dest, payload, -1, null);
 	}
 

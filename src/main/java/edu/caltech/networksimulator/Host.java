@@ -122,7 +122,7 @@ public class Host extends NetworkComponent implements Addressable {
 			}
 		} else if(p.getDest() == -1) {
 			if(p.getPayload().startsWith("HELLO")) {
-				n.offerPacket(new Packet(ip, -1, "HI " + ComponentType.HOST), this);
+				n.offerPacket(new Packet(ip, p.getSrc(), "HI " + ComponentType.HOST), this);
 			}
 		}
 	}
