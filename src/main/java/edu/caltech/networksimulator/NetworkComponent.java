@@ -78,5 +78,10 @@ public abstract class NetworkComponent implements Runnable, Comparable<NetworkCo
 	public int compareTo(NetworkComponent n) {
 		return n.name.compareTo(name);
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 
 }
