@@ -120,8 +120,9 @@ public class Router extends NetworkComponent implements Addressable {
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
-		System.out.println(
-				getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
+		
+		if (NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+			System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 
 		if (p.getDest() == ip || p.getDest() == -1) {
 
@@ -146,6 +147,9 @@ public class Router extends NetworkComponent implements Addressable {
 				}
 
 			} else if (p.getPayload().startsWith(ROUTING_PACKET_HEADER)) {
+				
+				if(!initialRoutingTableBuilt)
+					return;
 
 				String reducedPayload = p.getPayload().substring(ROUTING_PACKET_HEADER.length()).trim();
 				for (String routing : reducedPayload.split(" ")) {
