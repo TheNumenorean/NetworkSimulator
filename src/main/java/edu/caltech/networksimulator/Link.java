@@ -224,8 +224,8 @@ public class Link extends NetworkComponent {
 		}
 	}
 	
-	public long getBufferSize() {
-		return bufferSize;
+	public double getBufferFill() {
+		return (double)currentSize / bufferSize;
 	}
 
 	private class Sendable {
