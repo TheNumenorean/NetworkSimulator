@@ -52,6 +52,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 
 	}
 
+	@Override
 	public void start() {
 		this.setVisible(true);
 		timer.start();
@@ -60,6 +61,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 	/**
 	 * 
 	 */
+	@Override
 	public void finish() {
 		timer.stop();
 	}

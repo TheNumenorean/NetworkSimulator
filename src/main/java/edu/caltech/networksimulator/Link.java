@@ -61,22 +61,6 @@ public class Link extends NetworkComponent {
 		sentPackets = 0;
 		droppedPackets = 0;
 		currentSize = 0;
-		
-		lastPacketDropped = System.currentTimeMillis();
-		lastPacketSent = System.currentTimeMillis();
-
-		// Initialize data capture tools
-		for (DataCaptureTool dc : getDataCollectors()) {
-			
-			dc.addData(this, "Sent Packets", System.currentTimeMillis(),
-					0);
-			dc.addData(this, "Dropped Packets", System.currentTimeMillis(),
-					0);
-			dc.addData(this, "Buffer Size", System.currentTimeMillis(), currentSize);
-			dc.setMax(this, "Sent Packets", 1);
-			dc.setMax(this, "Dropped Packets", 1);
-			dc.setMax(this, "Buffer Size", bufferSize);
-		}
 	}
 
 	/**
@@ -98,6 +82,22 @@ public class Link extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
+		
+		lastPacketDropped = System.currentTimeMillis();
+		lastPacketSent = System.currentTimeMillis();
+
+		// Initialize data capture tools
+		for (DataCaptureTool dc : getDataCollectors()) {
+			
+			dc.addData(this, "Sent Packets", System.currentTimeMillis(),
+					0);
+			dc.addData(this, "Dropped Packets", System.currentTimeMillis(),
+					0);
+			dc.addData(this, "Buffer Size", System.currentTimeMillis(), currentSize);
+			dc.setMax(this, "Sent Packets", 1);
+			dc.setMax(this, "Dropped Packets", 1);
+			dc.setMax(this, "Buffer Size", bufferSize);
+		}
 
 		int linkState = IDLE;
 		while (!super.receivedStop()) {
@@ -150,14 +150,17 @@ public class Link extends NetworkComponent {
 			next.to.offerPacket(next.packet, this);
 			currentSize -= next.packet.getPacketSize();
 			sentPackets++;
+			
+			
 
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
-					1.0 / Math.sqrt(System.currentTimeMillis() - this.lastPacketSent + 1));
+					1.0 / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
 					currentSize);
 
 			
-			lastPacketSent= System.currentTimeMillis();
+			lastPacketSent = System.currentTimeMillis();
 			
 			if (queue.isEmpty())
 				linkState = IDLE;
