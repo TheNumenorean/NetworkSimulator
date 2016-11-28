@@ -61,7 +61,7 @@ public class Flow extends NetworkComponent {
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
 		
 		// Set up the window algorithm
-		setupAlg("Simple");
+		setupAlg("TCPTahoe");
 		
 		// Set up tracking of where we are in the flow
 		this.idxReceived = -1;
@@ -88,10 +88,10 @@ public class Flow extends NetworkComponent {
 		while (!super.receivedStop()) {
 			// keep going if we're done with our flow, because others
 			// may not be
-			if (this.idxSent > 0) { // make sure we've sent at least one
+			if (this.idxSent >= 0) { // make sure we've sent at least one
 				if (System.currentTimeMillis() > lastSentTime + TIMEOUT) {
 					// detected dropped packet by timeout
-					alg.droppedPacket();
+					alg.droppedPacket(false);
 					DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
 							this.alg.getW());
 					// Assume all our packets sent so far were in vain. Reset:
@@ -118,6 +118,8 @@ public class Flow extends NetworkComponent {
 	private void setupAlg(String name) {
 		if (name.equals("Simple")) {
 			this.alg = new SimpleWindow(name);
+		} else if (name.equals("TCPTahoe")) {
+			this.alg = new TCPTahoe(name);
 		} else {
 			// Static window of size 5
 			this.alg = new StaticWindow("Static", 5);
@@ -178,11 +180,13 @@ public class Flow extends NetworkComponent {
 				dupACKcount++;
 				
 				if (dupACKcount >= 3) { // too many dupACKs => a dropped packet
-					alg.droppedPacket();
+					alg.droppedPacket(true);
 					DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
 							this.alg.getW());
 					// Assume all our packets sent so far were in vain. Reset:
-					this.idxSent = this.idxReceived;
+					if (alg.FR) {
+						this.idxSent = this.idxReceived;
+					}
 					this.dupACKcount = 0;
 					DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
 							this.idxSent);

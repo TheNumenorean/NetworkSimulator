@@ -8,7 +8,7 @@ public class StaticWindow extends WindowAlgorithm{
 	}
 
 	@Override
-	public void droppedPacket() {
+	public void droppedPacket(boolean dupACK) {
 		// never changes window size
 		return;
 	}
@@ -16,6 +16,11 @@ public class StaticWindow extends WindowAlgorithm{
 	@Override
 	public void ACKPacket(Packet p) {
 		// never changes window size
+		return;
+	}
+
+	@Override
+	public void newRTT() {
 		return;
 	}
 
