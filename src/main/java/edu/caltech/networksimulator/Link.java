@@ -3,6 +3,9 @@
  */
 package edu.caltech.networksimulator;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -32,12 +35,16 @@ public class Link extends NetworkComponent {
 	private static final String SENT_LINE_NAME = "Link Rate";
 	private static final String DROPPED_LINE_NAME = "Dropped Rate";
 	private static final String BUFFER_LINE_NAME = "Buffer size (% capacity)";
+	
+	private static final int DATA_HIST_SIZE = 10;
 
 	private int sentPackets, droppedPackets;
 	
 	private long lastPacketDropped, lastPacketSent;
 	
 	private NetworkComponent end1, end2;
+	
+	private List<Double> rateData;
 
 	// Packets trying to enter a full queue will be dropped
 	private LinkedBlockingQueue<Sendable> queue;
@@ -61,6 +68,8 @@ public class Link extends NetworkComponent {
 		this.bufferSize = bufferSize;
 
 		queue = new LinkedBlockingQueue<Sendable>();
+		
+		rateData = new ArrayList<Double>();
 
 		sentPackets = 0;
 		droppedPackets = 0;
@@ -161,8 +170,18 @@ public class Link extends NetworkComponent {
 			if (queue.isEmpty())
 				linkState = IDLE;
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
-					1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			if(rateData.size() == DATA_HIST_SIZE)
+				rateData.remove(0);
+			
+			rateData.add(1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			
+			double rateTotal = 0;
+			for(double l : rateData)
+				rateTotal += l;
+			
+			
+			
+			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis(), rateTotal / rateData.size());
 			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(),
 					currentSize);
