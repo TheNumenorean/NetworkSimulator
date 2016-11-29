@@ -18,41 +18,43 @@ public class SimulationRunner {
 		// Set up case 0
 		NetworkSimulator sim = new NetworkSimulator();
 
-		sim.addDataCollector(new GraphicalCaptureTool());
+		GraphicalCaptureTool gct = new GraphicalCaptureTool();
+		
+		sim.addDataCollector(gct);
 
 		if (args.length > 0) {
 			try {
-				setupCase(Integer.parseInt(args[0]), sim, args[1]);
+				setupCase(Integer.parseInt(args[0]), sim, args[1], gct);
 			} catch (NumberFormatException e) {
 				System.err.println("First arg must be an integer!");
 				return;
 			}
 		} else
 			// Congestion algs to choose from: Static, Simple, Exponential, TCPTahoe, TCPReno
-			setupCase(1, sim, "Exponential");
+			setupCase(1, sim, "Exponential", gct);
 		// run the simulation
 		sim.run();
 
 	}
 
-	public static void setupCase(int n, NetworkSimulator sim, String alg) {
+	public static void setupCase(int n, NetworkSimulator sim, String alg, GraphicalCaptureTool gct) {
 		switch (n) {
 		case 0:
-			setupCase0(sim, alg);
+			setupCase0(sim, alg, gct);
 			break;
 		case 1:
-			setupCase1(sim, alg);
+			setupCase1(sim, alg, gct);
 			break;
 		case 2:
-			setupCase2(sim, alg);
+			setupCase2(sim, alg, gct);
 			break;
 		case 3:
-			setupCase3(sim, alg);
+			setupCase3(sim, alg, gct);
 			break;
 		}
 	}
 
-	public static void setupCase0(NetworkSimulator sim, String alg) {
+	public static void setupCase0(NetworkSimulator sim, String alg, GraphicalCaptureTool gct) {
 		// create link
 		Link l = new Link("Link1", 10000000, 10, 64000); // 3000
 		sim.addComponent(l);
@@ -71,7 +73,7 @@ public class SimulationRunner {
 		sim.addComponent(sink);
 	}
 
-	public static void setupCase1(NetworkSimulator sim, String alg) {
+	public static void setupCase1(NetworkSimulator sim, String alg, GraphicalCaptureTool gct) {
 		// make links
 		Link l0 = new Link("Link0", 12500000, 10, 64000);
 		sim.addComponent(l0);
@@ -85,6 +87,13 @@ public class SimulationRunner {
 		sim.addComponent(l4);
 		Link l5 = new Link("Link5", 12500000, 10, 64000);
 		sim.addComponent(l5);
+		
+		gct.dontDisplayComponent(l0);
+		gct.dontDisplayComponent(l3);
+		gct.dontDisplayComponent(l4);
+		gct.dontDisplayComponent(l5);
+		
+		
 
 		// Add source
 		Host source2 = new Host("Host1", l0, 1000);
@@ -127,7 +136,7 @@ public class SimulationRunner {
 		sim.addComponent(r4);
 	}
 
-	public static void setupCase2(NetworkSimulator sim, String alg) {
+	public static void setupCase2(NetworkSimulator sim, String alg, GraphicalCaptureTool gct) {
 
 	}
 
@@ -135,7 +144,7 @@ public class SimulationRunner {
 	 * This is a simpler test for routing.
 	 * Host - Router - Router - Host
 	 */
-	public static void setupCase3(NetworkSimulator sim, String alg) {
+	public static void setupCase3(NetworkSimulator sim, String alg, GraphicalCaptureTool gct) {
 		// create link
 		Link l1 = new Link("Link1", 10000000, 10, 64000); // 3000
 		sim.addComponent(l1);
