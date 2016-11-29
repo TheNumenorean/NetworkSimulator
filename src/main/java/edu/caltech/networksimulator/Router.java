@@ -89,24 +89,29 @@ public class Router extends NetworkComponent implements Addressable {
 
 		while (!this.receivedStop()) {
 
+			// Update local host rates
+			for (Entry<Long, Link> nc : hostLinks.entrySet()) {
+				routingTable.get(nc.getKey()).cost = nc.getValue().getBufferFill();
+			}
+
 			for (NetworkComponent link : switchLinks.values()) {
-				
-			// Only send out routing packets if we have a routing table
-			if (!routingTable.isEmpty()) {
-				String payload = "ROUTING";
 
-				for (Entry<Long, Routing> routing : routingTable.entrySet()) {
-					if(!routing.getValue().link.equals(link))
-						payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
-				}
+				// Only send out routing packets if we have a routing table
+				if (!routingTable.isEmpty()) {
+					String payload = "ROUTING";
 
-				Packet broadcast = new Packet(ip, -1, payload);
-				
-				System.out.println(broadcast);
+					for (Entry<Long, Routing> routing : routingTable.entrySet()) {
+						if (!routing.getValue().link.equals(link))
+							payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+					}
+
+					Packet broadcast = new Packet(ip, -1, payload);
+
+					System.out.println(broadcast);
 
 					link.offerPacket(broadcast, this);
-				
-			}
+
+				}
 			}
 
 			try {
@@ -127,9 +132,11 @@ public class Router extends NetworkComponent implements Addressable {
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
-		
-		if ((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_ROUTER_PACKETS))
-			System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
+
+		if ((NetworkSimulator.PRINT_ROUTING && p.isRouting())
+				|| (!p.isRouting() && NetworkSimulator.PRINT_ROUTER_PACKETS))
+			System.out.println(
+					getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 
 		if (p.getDest() == ip || p.getDest() == -1) {
 
@@ -154,8 +161,8 @@ public class Router extends NetworkComponent implements Addressable {
 				}
 
 			} else if (p.getPayload().startsWith(ROUTING_PACKET_HEADER)) {
-				
-				if(!initialRoutingTableBuilt)
+
+				if (!initialRoutingTableBuilt)
 					return;
 
 				String reducedPayload = p.getPayload().substring(ROUTING_PACKET_HEADER.length()).trim();
@@ -177,8 +184,10 @@ public class Router extends NetworkComponent implements Addressable {
 								Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
 						long routingIP = Long.parseLong(routingElements[0]);
 
-						if (!hostLinks.containsKey(routingIP) && 
-								(!routingTable.containsKey(routingIP) || routingTable.get(routingIP).cost > newRouting.cost)) {
+						if (!hostLinks.containsKey(routingIP)
+								&& (!routingTable.containsKey(routingIP)
+									|| routingTable.get(routingIP).cost > newRouting.cost
+									|| routingTable.get(routingIP).link.equals(n))) {
 							routingTable.put(routingIP, newRouting);
 						}
 
