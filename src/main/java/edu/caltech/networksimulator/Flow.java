@@ -4,6 +4,12 @@
 package edu.caltech.networksimulator;
 
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
+import edu.caltech.networksimulator.windowalgs.ExponentialWindow;
+import edu.caltech.networksimulator.windowalgs.SimpleWindow;
+import edu.caltech.networksimulator.windowalgs.StaticWindow;
+import edu.caltech.networksimulator.windowalgs.TCPReno;
+import edu.caltech.networksimulator.windowalgs.TCPTahoe;
+import edu.caltech.networksimulator.windowalgs.WindowAlgorithm;
 
 /**
  * @author Carly

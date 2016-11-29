@@ -1,4 +1,6 @@
-package edu.caltech.networksimulator;
+package edu.caltech.networksimulator.windowalgs;
+
+import edu.caltech.networksimulator.Packet;
 
 /*
  * This class mimics the behavior of Congestion Avoidance

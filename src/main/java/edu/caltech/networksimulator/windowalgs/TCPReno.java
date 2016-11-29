@@ -1,4 +1,7 @@
-package edu.caltech.networksimulator;
+package edu.caltech.networksimulator.windowalgs;
+
+import edu.caltech.networksimulator.NetworkException;
+import edu.caltech.networksimulator.Packet;
 
 public class TCPReno extends WindowAlgorithm{
 

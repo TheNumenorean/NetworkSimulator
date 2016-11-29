@@ -1,6 +1,8 @@
-package edu.caltech.networksimulator;
+package edu.caltech.networksimulator.windowalgs;
 
 import java.util.ArrayList;
+
+import edu.caltech.networksimulator.Packet;
 
 /**
  * @author Carly
