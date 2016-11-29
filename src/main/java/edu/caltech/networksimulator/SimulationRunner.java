@@ -28,7 +28,7 @@ public class SimulationRunner {
 				return;
 			}
 		} else
-			setupCase(0, sim);
+			setupCase(1, sim);
 		// run the simulation
 		sim.run();
 
@@ -88,7 +88,7 @@ public class SimulationRunner {
 		// Add source
 		Host source2 = new Host("Host1", l0, 1000);
 		source2.setIP(1);
-		Flow f2 = new Flow(1, 2, "Flow1", 20, 500);
+		Flow f2 = new Flow(1, 2, "Flow1", 20, 5000);
 		source2.addFlow(f2);
 		sim.addComponent(f2);
 		sim.addComponent(source2);

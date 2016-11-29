@@ -33,7 +33,7 @@ public class Router extends NetworkComponent implements Addressable {
 	public static final String IDENTITY_REQUEST_HEADER = "HELLO";
 	public static final String IDENTITY_REQUEST_RESPONSE_HEADER = "HI";
 	public static final String ROUTING_PACKET_HEADER = "ROUTING";
-	private static final long ROUTING_DELAY = 1000;
+	private static final long ROUTING_DELAY = 2000;
 
 	// Routing table as map
 	private Map<Long, Routing> routingTable;
@@ -101,8 +101,11 @@ public class Router extends NetworkComponent implements Addressable {
 				}
 
 				Packet broadcast = new Packet(ip, -1, payload);
+				
+				System.out.println(broadcast);
 
 					link.offerPacket(broadcast, this);
+				
 			}
 			}
 
@@ -125,7 +128,7 @@ public class Router extends NetworkComponent implements Addressable {
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
 		
-		if (NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+		if ((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_ROUTER_PACKETS))
 			System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 
 		if (p.getDest() == ip || p.getDest() == -1) {
@@ -174,8 +177,8 @@ public class Router extends NetworkComponent implements Addressable {
 								Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
 						long routingIP = Long.parseLong(routingElements[0]);
 
-						if (!hostLinks.containsKey(routingIP) && (!routingTable.containsKey(routingIP)
-								|| routingTable.get(routingIP).cost < newRouting.cost)) {
+						if (!hostLinks.containsKey(routingIP) && 
+								(!routingTable.containsKey(routingIP) || routingTable.get(routingIP).cost > newRouting.cost)) {
 							routingTable.put(routingIP, newRouting);
 						}
 

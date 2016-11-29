@@ -132,7 +132,7 @@ public class Flow extends NetworkComponent {
 	public Packet getPacket() {
 		if ((this.start_at < System.currentTimeMillis()) && // head start over
 			(!this.finished()) && // haven't sent all the packets yet
-			(this.idxReceived + alg.getW() >= this.idxSent)) { // haven't sent all the packets in this window yet
+			(this.idxReceived + alg.getW() > this.idxSent)) { // haven't sent all the packets in this window yet
 			// print some stuff
 			System.out.println("Sending packet " + (this.idxSent + 1));
 			// increment the index that we've sent at

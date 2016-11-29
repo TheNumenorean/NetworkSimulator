@@ -178,9 +178,9 @@ public class Link extends NetworkComponent {
 	public void offerPacket(Packet p, NetworkComponent n) {
 
 		// keeps packet if the buffer is not full, but drops a small percentage
-		if ((currentSize + p.getPacketSize() <= bufferSize) && (Math.random() > DROPPED_FRACTION)) {
+		if ((currentSize + p.getPacketSize() <= bufferSize) && (Math.random() >= DROPPED_FRACTION)) {
 			
-			if(NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
 			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
@@ -192,7 +192,7 @@ public class Link extends NetworkComponent {
 			
 			lastPacketDropped = System.currentTimeMillis();
 			
-			if(NetworkSimulator.PRINT_ROUTING || !p.isRouting())
+			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t is dropping packet p: " + p + "\t from " + n.getComponentName());
 		}
 	}
