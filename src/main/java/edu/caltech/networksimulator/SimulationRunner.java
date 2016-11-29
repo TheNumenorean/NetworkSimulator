@@ -22,36 +22,37 @@ public class SimulationRunner {
 
 		if (args.length > 0) {
 			try {
-				setupCase(Integer.parseInt(args[0]), sim);
+				setupCase(Integer.parseInt(args[0]), sim, args[1]);
 			} catch (NumberFormatException e) {
 				System.err.println("First arg must be an integer!");
 				return;
 			}
 		} else
-			setupCase(0, sim);
+			// Congestion algs to choose from: Static, Simple, Exponential, TCPTahoe, TCPReno
+			setupCase(1, sim, "Exponential");
 		// run the simulation
 		sim.run();
 
 	}
 
-	public static void setupCase(int n, NetworkSimulator sim) {
+	public static void setupCase(int n, NetworkSimulator sim, String alg) {
 		switch (n) {
 		case 0:
-			setupCase0(sim);
+			setupCase0(sim, alg);
 			break;
 		case 1:
-			setupCase1(sim);
+			setupCase1(sim, alg);
 			break;
 		case 2:
-			setupCase2(sim);
+			setupCase2(sim, alg);
 			break;
 		case 3:
-			setupCase3(sim);
+			setupCase3(sim, alg);
 			break;
 		}
 	}
 
-	public static void setupCase0(NetworkSimulator sim) {
+	public static void setupCase0(NetworkSimulator sim, String alg) {
 		// create link
 		Link l = new Link("Link1", 10000000, 10, 64000); // 3000
 		sim.addComponent(l);
@@ -59,7 +60,7 @@ public class SimulationRunner {
 		// Add source
 		Host source = new Host("Host1", l, 1000);
 		source.setIP(1);
-		Flow f = new Flow(1, 2, "Flow1", 20, 1000, "Simple");
+		Flow f = new Flow(1, 2, "Flow1", 20, 1000, alg);
 		source.addFlow(f);
 		sim.addComponent(f);
 		sim.addComponent(source);
@@ -70,25 +71,25 @@ public class SimulationRunner {
 		sim.addComponent(sink);
 	}
 
-	public static void setupCase1(NetworkSimulator sim) {
+	public static void setupCase1(NetworkSimulator sim, String alg) {
 		// make links
-		Link l0 = new Link("Link0", 12500000, 10, 6400);
+		Link l0 = new Link("Link0", 12500000, 10, 64000);
 		sim.addComponent(l0);
-		Link l1 = new Link("Link1", 10000000, 10, 6400);
+		Link l1 = new Link("Link1", 10000000, 10, 64000);
 		sim.addComponent(l1);
-		Link l2 = new Link("Link2", 10000000, 10, 6400);
+		Link l2 = new Link("Link2", 10000000, 10, 64000);
 		sim.addComponent(l2);
-		Link l3 = new Link("Link3", 10000000, 10, 6400);
+		Link l3 = new Link("Link3", 10000000, 10, 64000);
 		sim.addComponent(l3);
-		Link l4 = new Link("Link4", 10000000, 10, 6400);
+		Link l4 = new Link("Link4", 10000000, 10, 64000);
 		sim.addComponent(l4);
-		Link l5 = new Link("Link5", 12500000, 10, 6400);
+		Link l5 = new Link("Link5", 12500000, 10, 64000);
 		sim.addComponent(l5);
 
 		// Add source
 		Host source2 = new Host("Host1", l0, 1000);
 		source2.setIP(1);
-		Flow f2 = new Flow(1, 2, "Flow1", 20, 5000, "Simple");
+		Flow f2 = new Flow(1, 2, "Flow1", 20, 5000, alg);
 		source2.addFlow(f2);
 		sim.addComponent(f2);
 		sim.addComponent(source2);
@@ -126,7 +127,15 @@ public class SimulationRunner {
 		sim.addComponent(r4);
 	}
 
-	public static void setupCase2(NetworkSimulator sim) {
+	public static void setupCase2(NetworkSimulator sim, String alg) {
+
+	}
+
+	/*
+	 * This is a simpler test for routing.
+	 * Host - Router - Router - Host
+	 */
+	public static void setupCase3(NetworkSimulator sim, String alg) {
 		// create link
 		Link l1 = new Link("Link1", 10000000, 10, 64000); // 3000
 		sim.addComponent(l1);
@@ -138,7 +147,7 @@ public class SimulationRunner {
 		// Add source
 		Host source = new Host("Host1", l1, 1000);
 		source.setIP(1);
-		Flow f = new Flow(1, 2, "Flow1", 20, 1000, "Simple");
+		Flow f = new Flow(1, 2, "Flow1", 20, 1000, alg);
 		source.addFlow(f);
 
 		sim.addComponent(source);
@@ -161,10 +170,6 @@ public class SimulationRunner {
 		r2.addLink(l2);
 
 		sim.addComponent(r2);
-	}
-
-	public static void setupCase3(NetworkSimulator sim) {
-
 	}
 
 }

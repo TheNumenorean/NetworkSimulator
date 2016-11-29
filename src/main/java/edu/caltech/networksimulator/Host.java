@@ -20,7 +20,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
  */
 public class Host extends NetworkComponent implements Addressable {
 
-	private static final long SLEEP_TIME = 50;
+	private static final long SLEEP_TIME = 10;
 	private long macAddress;
 	private long ip;
 	private Link link;
@@ -54,10 +54,11 @@ public class Host extends NetworkComponent implements Addressable {
 		while (!super.receivedStop()) {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
-				while (nextPacket != null) {
+				//while (nextPacket != null) {
+				if (nextPacket != null) {
 					nextPacket.setSentTime();
 					link.offerPacket(nextPacket, this);
-					nextPacket = flow.getPacket();
+					//nextPacket = flow.getPacket();
 				}
 			}
 
