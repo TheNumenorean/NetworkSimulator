@@ -26,7 +26,6 @@ public class AxisLabel extends JComponent {
 	 */
 	public AxisLabel() {
 		
-		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
 		this.setMinimumSize(new Dimension(100, 100));
