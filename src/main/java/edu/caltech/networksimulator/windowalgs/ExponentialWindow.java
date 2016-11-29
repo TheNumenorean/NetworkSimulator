@@ -1,11 +1,11 @@
 package edu.caltech.networksimulator;
 
 /*
- * This class mimics the behavior of Congestion Avoidance
+ * This class mimics the behavior of Slow Start
  */
-public class SimpleWindow extends WindowAlgorithm {
+public class ExponentialWindow extends WindowAlgorithm{
 	
-	public SimpleWindow(String name) {
+	public ExponentialWindow(String name) {
 		super(name);
 		this.window = 1;
 	}
@@ -13,7 +13,7 @@ public class SimpleWindow extends WindowAlgorithm {
 	@Override
 	public void droppedPacket(boolean dupACK) {
 		// Ensure the window is always at least one
-		this.window = Math.max(window - 1, 1);
+		this.window = Math.max(window/2, 2);
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class SimpleWindow extends WindowAlgorithm {
 
 	@Override
 	public void newRTT() {
-		return;
+		this.window *= 2;
 	}
 
 }

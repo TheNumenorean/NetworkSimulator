@@ -20,10 +20,12 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
  */
 public class Host extends NetworkComponent implements Addressable {
 
+	private static final long SLEEP_TIME = 50;
 	private long macAddress;
 	private long ip;
 	private Link link;
 	private Flow flow;
+	
 
 	// Stuff for responding to requests
 	// Map between flow IDs and sequence numbers
@@ -52,15 +54,16 @@ public class Host extends NetworkComponent implements Addressable {
 		while (!super.receivedStop()) {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
-				if (nextPacket != null) {
+				while (nextPacket != null) {
 					nextPacket.setSentTime();
 					link.offerPacket(nextPacket, this);
+					nextPacket = flow.getPacket();
 				}
 			}
 
 			// Don't run too often
 			try {
-				Thread.sleep(500);
+				Thread.sleep(SLEEP_TIME);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

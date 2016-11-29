@@ -53,7 +53,7 @@ public class Flow extends NetworkComponent {
 	 * @param data_size The amount of data to send as part of this flow, in MB
 	 * @param start_delay The delay in starting to send this flow, in millis
 	 */
-	public Flow(long src, long dest, String name, long data_size, long start_delay) {
+	public Flow(long src, long dest, String name, long data_size, long start_delay, String alg_name) {
 		// Setup of what and where
 		super(name);
 		this.src = src;
@@ -64,7 +64,7 @@ public class Flow extends NetworkComponent {
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
 		
 		// Set up the window algorithm
-		setupAlg("TCPReno");
+		setupAlg("Simple");
 		
 		// Set up tracking of where we are in the flow
 		this.idxReceived = -1;
@@ -84,12 +84,12 @@ public class Flow extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
-		//DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Recieved", System.currentTimeMillis(),
-		//		this.idxReceived);
-		//DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
-		//		this.idxSent);
-		//DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
-		//		this.alg.getW());
+//		DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Recieved", System.currentTimeMillis(),
+//				this.idxReceived);
+//		DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
+//				this.idxSent);
+//		DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
+//				this.alg.getW());
 		
 		while (!super.receivedStop()) {
 			// keep going if we're done with our flow, because others
@@ -134,9 +134,11 @@ public class Flow extends NetworkComponent {
 			this.alg = new TCPTahoe(name);
 		} else if (name.equals("TCPReno")) {
 			this.alg = new TCPReno(name);
+		} else if (name.equals("Exponential")) {
+			this.alg = new ExponentialWindow(name);
 		} else {
 			// Static window of size 5
-			this.alg = new StaticWindow("Static", 5);
+			this.alg = new StaticWindow("Static", 1);
 		}
 	}
 	
