@@ -3,9 +3,6 @@
  */
 package edu.caltech.networksimulator;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -37,19 +34,15 @@ public class Link extends NetworkComponent {
 	private static final String BUFFER_LINE_NAME = "Buffer size (% capacity)";
 	
 	private static final int DATA_HIST_SIZE = 50;
-
-	private int sentPackets, droppedPackets;
 	
 	private long lastPacketDropped, lastPacketSent;
 	
 	private NetworkComponent end1, end2;
-	
-	private List<Double> rateData;
 
 	// Packets trying to enter a full queue will be dropped
 	private LinkedBlockingQueue<Sendable> queue;
 
-	private long capacity, propagationDelay, bufferSize, currentSize;
+	private long capacity, propagationDelay, bufferSize, bufferUsed;
 
 	/**
 	 * @param name
@@ -68,13 +61,8 @@ public class Link extends NetworkComponent {
 		this.bufferSize = bufferSize;
 
 		queue = new LinkedBlockingQueue<Sendable>();
-		
-		rateData = new ArrayList<Double>();
 
-		sentPackets = 0;
-		droppedPackets = 0;
-		currentSize = 0;
-		
+		bufferUsed = 0;
 		lastPacketDropped = 0;
 		lastPacketSent = 0;
 	}
@@ -106,7 +94,7 @@ public class Link extends NetworkComponent {
 					0);
 			dc.addData(this, DROPPED_LINE_NAME, System.currentTimeMillis(),
 					0);
-			dc.addData(this, BUFFER_LINE_NAME, System.currentTimeMillis(), currentSize);
+			dc.addData(this, BUFFER_LINE_NAME, System.currentTimeMillis(), bufferUsed);
 			dc.setMax(this, SENT_LINE_NAME, this.capacity);
 			dc.setMax(this, DROPPED_LINE_NAME, 1);
 			dc.setMax(this, BUFFER_LINE_NAME, bufferSize);
@@ -167,27 +155,17 @@ public class Link extends NetworkComponent {
 
 			// Having waited, now send
 			next.to.offerPacket(next.packet, this);
-			currentSize -= next.packet.getPacketSize();
-			sentPackets++;
+			bufferUsed -= next.packet.getPacketSize();
 			
+			// If nothing else is happening, move back to idel state
 			if (queue.isEmpty())
 				linkState = IDLE;
 			
-			if(rateData.size() == DATA_HIST_SIZE)
-				rateData.remove(0);
 			
-			rateData.add(1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
-			
-			double rateTotal = 0;
-			for(double l : rateData)
-				rateTotal += l;
-			
-			
-			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis(), rateTotal / rateData.size());
+			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis(), 1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
 			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(),
-					currentSize);
+					bufferUsed);
 			
 
 			lastPacketSent = System.currentTimeMillis();
@@ -207,15 +185,14 @@ public class Link extends NetworkComponent {
 	public void offerPacket(Packet p, NetworkComponent n) {
 
 		// keeps packet if the buffer is not full, but drops a small percentage
-		if ((currentSize + p.getPacketSize() <= bufferSize) && (Math.random() >= DROPPED_FRACTION)) {
+		if ((bufferUsed + p.getPacketSize() <= bufferSize) && (Math.random() >= DROPPED_FRACTION)) {
 			
 			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
 			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
-			currentSize += p.getPacketSize();
+			bufferUsed += p.getPacketSize();
 		} else {
-			droppedPackets++;
 			DataCaptureToolHelper.addData(getDataCollectors(), this, DROPPED_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 			
@@ -256,15 +233,34 @@ public class Link extends NetworkComponent {
 		}
 	}
 	
+	/**
+	 * Get the percentage filled of the buffer
+	 * @return A double value from 0 to 1
+	 */
 	public double getBufferFill() {
-		return (double)currentSize / bufferSize;
+		return (double)bufferUsed / bufferSize;
 	}
 
+	/**
+	 * Represents something that is going to be sent
+	 * @author Francesco
+	 *
+	 */
 	private class Sendable {
 
-		// Send no earlier than this time
+		/**
+		 * A system time (in ms) that this packet cannot be sent earlier than
+		 */
 		public long sendNET;
+		
+		/**
+		 * The packet to send
+		 */
 		public Packet packet;
+		
+		/**
+		 * The end to send it to
+		 */
 		public NetworkComponent to;
 
 		public Sendable(long sendNET, Packet packet, NetworkComponent to) {
