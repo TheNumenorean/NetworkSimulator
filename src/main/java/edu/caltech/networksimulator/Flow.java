@@ -96,7 +96,7 @@ public class Flow extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
-		while (!super.receivedStop()) {
+		while (!super.receivedStop() && !finished()) {
 			// graph some things
 			for (DataCaptureTool dc : getDataCollectors()) {
 				
@@ -104,13 +104,19 @@ public class Flow extends NetworkComponent {
 				dc.setMax(this, "Index Received", this.maxIdxSent);
 				dc.addData(this, "Index Sent", System.currentTimeMillis(), this.idxSent);
 				dc.addData(this, "Index Received", System.currentTimeMillis(), this.idxReceived);
+				
+				// window size
 				dc.addData(this, "Window Size", System.currentTimeMillis(), this.alg.getW());
+				
+				// flow rate
+				dc.setDataSmoothingRange(this, "Flow Rate", 50);
 			}
 			
-			// keep going if we're done with our flow, because others
-			// may not be
 			if (this.idxSent >= 0) { // make sure we've sent at least one
 				if (System.currentTimeMillis() > lastSentTime + TIMEOUT) {
+					if (FLOW_DEBUG) {
+						System.out.println("\t\t\t\t Dropped packet detected");
+					}
 					// detected dropped packet by timeout
 					alg.droppedPacket(false);
 					// Assume all our packets sent so far were in vain. Reset:
@@ -132,6 +138,8 @@ public class Flow extends NetworkComponent {
 				e.printStackTrace();
 			}
 		}
+		
+		System.out.println("DONE WITH FLOW");
 	}
 	
 	/*
@@ -200,9 +208,12 @@ public class Flow extends NetworkComponent {
 		if (p.getSeqID().equals(getComponentName())) {
 			// packet meant for us
 			if (p.getSeqNum() == this.idxReceived + 1) {
-				// New estimate for RTT
+				// Extract the RTT
 				this.lastRTT = (System.currentTimeMillis() - p.getSentTime());
-				System.out.println("Last RTT: " + this.lastRTT);
+				
+				DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Rate", System.currentTimeMillis() - (lastRTT) / 2,
+						p.getPacketSizeBits() / (lastRTT));
+				
 				// Next packet in the sequence: an ACK! Inform the window algorithm
 				alg.ACKPacket(p);
 				// Reset the dupACK counter

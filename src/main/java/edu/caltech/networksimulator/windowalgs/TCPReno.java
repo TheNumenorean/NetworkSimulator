@@ -5,38 +5,36 @@ import edu.caltech.networksimulator.Packet;
 
 public class TCPReno extends WindowAlgorithm{
 
-	private enum Phase {
+	private enum RenoPhase {
 		SLOW_START,
 		CONG_AVOID,
 		FAST_RECOVERY;
 	}
 	
 	private double window;
-	private Phase phase;
+	private RenoPhase phase;
 	private int ssthresh;
 	
 	public TCPReno(String name) {
 		super(name);
 		window = 1.0;
-		phase = Phase.SLOW_START;
+		phase = RenoPhase.SLOW_START;
 		this.FR = true;
+		ssthresh = 2;
 	}
 
 	@Override
 	public void newRTT() {
-		if (phase == Phase.FAST_RECOVERY) {
+		if (phase == RenoPhase.FAST_RECOVERY) {
 			// exit FR/FR after a RTT
-			phase = Phase.CONG_AVOID;
-		} else if (phase == Phase.SLOW_START) {
-			window *= 2.0;
-			if (window >= ssthresh) {
-				phase = Phase.CONG_AVOID;
-			}
-		} else if (phase == Phase.CONG_AVOID) {
-			window++;
+			phase = RenoPhase.CONG_AVOID;
+		} else if (phase == RenoPhase.SLOW_START) {
+			checkPhase();
+		} else if (phase == RenoPhase.CONG_AVOID) {
 		} else {
 			throw new NetworkException("Window algorithm phase unrecognized");
 		}
+		//printStuff();
 	}
 
 	@Override
@@ -44,23 +42,24 @@ public class TCPReno extends WindowAlgorithm{
 		ssthresh = Math.max((int) (window/2.0), 2);
 		if (dupACK) {
 			// Enter Fast Response/Fast Recovery
+			// 3 duplicates
 			window = ssthresh + 3; // window inflation
+			phase = RenoPhase.FAST_RECOVERY;
 		} else { // round trip timeout
 			window = ssthresh;
+			phase = RenoPhase.SLOW_START;
 		}
 	}
 
 	@Override
 	public void ACKPacket(Packet p) {
-		if (phase == Phase.SLOW_START) {
+		if (phase == RenoPhase.SLOW_START) {
 			window++;
-			if (window >= ssthresh) {
-				phase = Phase.CONG_AVOID;
-			}
-		} else if (phase == Phase.CONG_AVOID) {
+			checkPhase();
+		} else if (phase == RenoPhase.CONG_AVOID) {
 			window += (1.0 / window);
-		} else if (phase == Phase.FAST_RECOVERY) {
-			window = ssthresh;
+		} else if (phase == RenoPhase.FAST_RECOVERY) {
+			window = ssthresh; // window deflation
 		} else {
 			throw new NetworkException("Window algorithm phase unrecognized");
 		}
@@ -70,6 +69,24 @@ public class TCPReno extends WindowAlgorithm{
 	// getter for the window size
 	public int getW() {
 		return (int) window;
+	}
+	
+	// Only called from slow start
+	private void checkPhase() {
+		if (window > ssthresh) {
+			phase = RenoPhase.CONG_AVOID;
+		}
+	}
+	
+	private void printStuff() {
+		if (phase == RenoPhase.SLOW_START) {
+			System.out.println("RTT. Phase: SLOW START.");
+		} else if (phase == RenoPhase.CONG_AVOID) {
+			System.out.println("RTT. Phase: CONG AVOID.");
+		} else if (phase == RenoPhase.FAST_RECOVERY) {
+			System.out.println("RTT. Phase: FAST RECOVERY.");
+		}
+		System.out.println("w: " + getW() + " ssthresh: " + ssthresh);
 	}
 
 }
