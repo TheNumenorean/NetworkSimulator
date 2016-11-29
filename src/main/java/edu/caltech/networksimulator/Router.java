@@ -89,17 +89,21 @@ public class Router extends NetworkComponent implements Addressable {
 
 		while (!this.receivedStop()) {
 
+			for (NetworkComponent link : switchLinks.values()) {
+				
 			// Only send out routing packets if we have a routing table
 			if (!routingTable.isEmpty()) {
 				String payload = "ROUTING";
 
-				for (Entry<Long, Routing> routing : routingTable.entrySet())
-					payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+				for (Entry<Long, Routing> routing : routingTable.entrySet()) {
+					if(!routing.getValue().link.equals(link))
+						payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+				}
 
 				Packet broadcast = new Packet(ip, -1, payload);
 
-				for (NetworkComponent link : switchLinks.values())
 					link.offerPacket(broadcast, this);
+			}
 			}
 
 			try {

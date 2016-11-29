@@ -16,6 +16,8 @@ public class Packet {
 	private static final int PACKET_SIZE = 1024; // bytes
 	private static final int ACK_SIZE = 64; // bytes
 	
+	private static int lastPacketID = 0;
+	
 	// public static final int CHAR_SIZE = 2;
 	private final long src, dest;
 	private long sent_time;
@@ -25,6 +27,8 @@ public class Packet {
 	private final String sequence_id;
 	
 	private String payload;
+	
+	private int packetUID;
 	
 	/**
 	 * Creates a new packet with the given source and destination.
@@ -38,6 +42,8 @@ public class Packet {
 		this.payload = payload;
 		this.sequence_number = sequence_number;
 		this.sequence_id = sequence_id;
+		
+		packetUID = lastPacketID++;
 	}
 	
 	public Packet(long src, long dest, String payload) {
@@ -115,7 +121,8 @@ public class Packet {
 				" Dest: " + getDest() +
 				" Payload: " + getPayload() +
 				" Sequence ID: " + getSeqID() + 
-				" Sequence Num: " + getSeqNum() + "}";
+				" Sequence Num: " + getSeqNum() +  
+				" packetUID: " + packetUID + "}";
 	}
 
 	public long getPacketSizeBits() {
