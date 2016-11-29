@@ -28,17 +28,19 @@ public class Graph extends JComponent {
 	private Legend legend;
 	private long dataRange;
 	private int smoothingRange;
+	private AxisLabel axisLabel;
 
 	/**
 	 * @param labels
 	 * 
 	 */
-	public Graph(Legend legend, long dataRange) {
+	public Graph(long dataRange, Legend legend, AxisLabel axisLabel) {
+		
 		this.dataRange = dataRange;
+		this.legend = legend;
+		this.axisLabel = axisLabel;
 
 		data = new TreeMap<String, DataLine>();
-
-		this.legend = legend;
 
 		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
