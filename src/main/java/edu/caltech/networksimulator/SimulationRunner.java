@@ -31,9 +31,9 @@ public class SimulationRunner {
 			}
 		} else
 			// Congestion algs to choose from: Static, Simple, Exponential, TCPTahoe, TCPReno
-			setupCase(0, sim, "TCPReno", gct);
+			setupCase(1, sim, "TCPReno", gct);
 		// run the simulation
-		sim.run();
+		sim.run(); 
 
 	}
 
@@ -250,6 +250,7 @@ public class SimulationRunner {
 		source.addFlow(f);
 
 		sim.addComponent(source);
+		sim.addComponent(f);
 
 		// Add sink
 		Host sink = new Host("Host2", l2, 2000);

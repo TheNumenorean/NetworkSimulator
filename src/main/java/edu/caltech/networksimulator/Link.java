@@ -154,10 +154,10 @@ public class Link extends NetworkComponent {
 			}
 
 			// Having waited, now send
+			bufferUsed = Math.max(bufferUsed - next.packet.getPacketSize(), 0); // Sometimes it goes negative
 			next.to.offerPacket(next.packet, this);
-			bufferUsed -= next.packet.getPacketSize();
 			
-			// If nothing else is happening, move back to idel state
+			// If nothing else is happening, move back to idle state
 			if (queue.isEmpty())
 				linkState = IDLE;
 			
@@ -238,7 +238,10 @@ public class Link extends NetworkComponent {
 	 * @return A double value from 0 to 1
 	 */
 	public double getBufferFill() {
-		return (double)bufferUsed / bufferSize;
+		if ((((double) bufferUsed) / bufferSize) < 0) {
+			throw new NetworkException("Buffer fill percent is negative???");
+		}
+		return ((double) bufferUsed) / bufferSize;
 	}
 
 	/**

@@ -13,6 +13,8 @@ public class TCPTahoe extends WindowAlgorithm{
 	private double window;
 	private TahoePhase phase;
 	private int ssthresh;
+	private boolean responded = false; // have we responded to a timeout in this window?
+
 	
 	public TCPTahoe(String name) {
 		super(name);
@@ -27,6 +29,10 @@ public class TCPTahoe extends WindowAlgorithm{
 		ssthresh = Math.max((int) (window/2.0), 2);
 		window = 1;
 		phase = TahoePhase.SLOW_START;
+		
+		if (!dupACK && !responded) {
+			responded = true;
+		}
 	}
 
 	@Override
@@ -43,6 +49,9 @@ public class TCPTahoe extends WindowAlgorithm{
 
 	@Override
 	public void newRTT() {
+		if (phase == TahoePhase.CONG_AVOID) {
+			responded = false; // can react to another RT timeout
+		}
 	}
 	
 	private void checkPhase() {

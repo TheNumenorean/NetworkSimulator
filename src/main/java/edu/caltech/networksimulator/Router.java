@@ -33,7 +33,7 @@ public class Router extends NetworkComponent implements Addressable {
 	public static final String IDENTITY_REQUEST_HEADER = "HELLO";
 	public static final String IDENTITY_REQUEST_RESPONSE_HEADER = "HI";
 	public static final String ROUTING_PACKET_HEADER = "ROUTING";
-	private static final long ROUTING_DELAY = 500;
+	private static final long ROUTING_DELAY = 3000;
 
 	// Routing table as map
 	private Map<Long, Routing> routingTable;
@@ -51,8 +51,11 @@ public class Router extends NetworkComponent implements Addressable {
 	 */
 	public Router(String name) {
 		super(name);
-		// how to initialize map?
+		// Routing table keeps track of which IPs we can reach, at which costs,
+		// and through which links.
 		routingTable = new ConcurrentSkipListMap<Long, Routing>();
+
+		// We want to know our neighbors.
 		connectedLinks = new TreeSet<Link>();
 		initialRoutingTableBuilt = false;
 
@@ -68,8 +71,11 @@ public class Router extends NetworkComponent implements Addressable {
 	@Override
 	public void run() {
 
+		// Broadcast our existence in the network
 		Packet p = new Packet(ip, -1, IDENTITY_REQUEST_HEADER);
 
+		// Keep broadcasting while we figure out our neighboring switches
+		// (routers) and hosts
 		while (hostLinks.size() + switchLinks.size() != connectedLinks.size()) {
 			for (Link l : connectedLinks) {
 				if (!hostLinks.values().contains(l) && !switchLinks.values().contains(l))
@@ -77,42 +83,51 @@ public class Router extends NetworkComponent implements Addressable {
 			}
 
 			try {
-				Thread.sleep(ROUTING_DELAY);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 
+		// local host links should be 0 (we add in the dynamic cost of the link
+		// upon sending)
+		for (Entry<Long, Link> host : hostLinks.entrySet()) {
+			routingTable.get(host.getKey()).cost = 0;
+		}
 		initialRoutingTableBuilt = true;
 
 		System.out.println("Router " + this + " successfully completed pinging local links");
 
 		while (!this.receivedStop()) {
 
-			// Update local host rates
-			for (Entry<Long, Link> nc : hostLinks.entrySet()) {
-				routingTable.get(nc.getKey()).cost = nc.getValue().getBufferFill();
-			}
+			// broadcast multiple times in quick succession to neighbors
+			// to accommodate for everyone changing their routing tables at the same time
+			for (int i = 0; i < 5; i++) {
+				for (NetworkComponent link : switchLinks.values()) {
+					// Only send out routing packets if we have a routing table
+					if (!routingTable.isEmpty()) {
+						String payload = "ROUTING";
 
-			for (NetworkComponent link : switchLinks.values()) {
-				// Only send out routing packets if we have a routing table
-				if (!routingTable.isEmpty()) {
-					String payload = "ROUTING";
+						for (Entry<Long, Routing> routing : routingTable.entrySet()) {
+							if (!routing.getValue().link.equals(link))
+								// dynamically add the link cost
+								payload = payload + " " + routing.getKey() + ":"
+									+ (routing.getValue().cost + routing.getValue().link.getBufferFill());
+						}
 
-					for (Entry<Long, Routing> routing : routingTable.entrySet()) {
-						if (!routing.getValue().link.equals(link))
-							payload = payload + " " + routing.getKey() + ":" + routing.getValue().cost;
+						Packet broadcast = new Packet(ip, -1, payload);
+						link.offerPacket(broadcast, this);
 					}
-
-					Packet broadcast = new Packet(ip, -1, payload);
-
-					System.out.println(broadcast);
-
-					link.offerPacket(broadcast, this);
-
+				}
+				
+				try {
+					Thread.sleep(10);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 
+			// quiet down for a bit
 			try {
 				Thread.sleep(ROUTING_DELAY);
 			} catch (InterruptedException e) {
@@ -154,7 +169,8 @@ public class Router extends NetworkComponent implements Addressable {
 				case HOST:
 					if (!hostLinks.containsKey(p.getSrc())) {
 						hostLinks.put(p.getSrc(), (Link) n);
-						routingTable.put(p.getSrc(), new Routing(((Link) n).getBufferFill(), n));
+						// Hosts directly connected have zero cost (we add the link in later)
+						routingTable.put(p.getSrc(), new Routing(0, (Link) n));
 					}
 					break;
 				}
@@ -180,16 +196,14 @@ public class Router extends NetworkComponent implements Addressable {
 						// offered one is better.
 
 						Routing newRouting = new Routing(
-								Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
-						
-						assert(newRouting.cost >= 0 );
-						
+								Double.parseDouble(routingElements[1]), (Link) n);
+
 						long routingIP = Long.parseLong(routingElements[0]);
 
-						if (!hostLinks.containsKey(routingIP)
-								&& (!routingTable.containsKey(routingIP)
-									|| routingTable.get(routingIP).cost > newRouting.cost
-									|| routingTable.get(routingIP).link.equals(n))) {
+						if (!hostLinks.containsKey(routingIP) && (!routingTable.containsKey(routingIP)
+								|| (routingTable.get(routingIP).cost + routingTable.get(routingIP).link.getBufferFill()
+									> newRouting.cost + newRouting.link.getBufferFill()) )) {
+								// || routingTable.get(routingIP).link.equals(n))) {
 							routingTable.put(routingIP, newRouting);
 						}
 
@@ -209,7 +223,7 @@ public class Router extends NetworkComponent implements Addressable {
 			if (l != null)
 				l.link.offerPacket(p, this);
 			else
-				System.out.println("Router " + this + " dropping packet: no routing entry");
+				System.out.println(this + " dropping packet: no routing entry");
 		}
 	}
 
@@ -239,9 +253,9 @@ public class Router extends NetworkComponent implements Addressable {
 
 	private class Routing {
 		public double cost;
-		public NetworkComponent link;
+		public Link link;
 
-		public Routing(double cost, NetworkComponent link) {
+		public Routing(double cost, Link link) {
 			this.cost = cost;
 			this.link = link;
 		}

@@ -110,7 +110,6 @@ public class Flow extends NetworkComponent {
 				dc.addData(this, "Window Size", System.currentTimeMillis(), this.alg.getW());
 				
 				// progress
-				System.out.println(((double) idxReceived) / num_packets);
 				dc.addData(this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
 				dc.setMax(this, "Percent Done", 1);
 				
