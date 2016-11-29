@@ -82,7 +82,9 @@ public class Host extends NetworkComponent implements Addressable {
 	 */
 	@Override
 	public void offerPacket(Packet p, NetworkComponent n) {
-		System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
+		if (NetworkSimulator.PRINT_HOST_PACKETS) {
+			System.out.println(getComponentName() + "\t recieved packet p: " + p + "\t from " + n.getComponentName());
+		}
 		String message = p.getPayload();
 		if (p.getDest() == this.ip) { // message meant for us
 			if (!(message.equals("ACK"))) { // Message needs an ACK
@@ -142,7 +144,6 @@ public class Host extends NetworkComponent implements Addressable {
 	}
 
 	public void addFlow(Flow f) {
-		System.out.println(getComponentName() + " recieved flow f: " + f);
 		this.flow = f;
 	}
 

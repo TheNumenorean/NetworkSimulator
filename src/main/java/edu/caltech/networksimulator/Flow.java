@@ -3,6 +3,7 @@
  */
 package edu.caltech.networksimulator;
 
+import edu.caltech.networksimulator.datacapture.DataCaptureTool;
 import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
 import edu.caltech.networksimulator.windowalgs.ExponentialWindow;
 import edu.caltech.networksimulator.windowalgs.SimpleWindow;
@@ -28,6 +29,8 @@ import edu.caltech.networksimulator.windowalgs.WindowAlgorithm;
  */
 public class Flow extends NetworkComponent {
 	
+	private static final boolean FLOW_DEBUG = false;
+	
 	// Where it's going and what the flow is doing
 	private final long src, dest;
 	private final long data_size;
@@ -38,7 +41,8 @@ public class Flow extends NetworkComponent {
 	private WindowAlgorithm alg;
 	
 	// detecting packet timeouts
-	private static final long TIMEOUT = 500;
+	private static final long TIMEOUT = 2000;
+	private static final long FLOW_SLEEP = 50;
 	private long lastSentTime; // time of last sent packet
 	
 	// Some algorithms do things every RTT
@@ -51,6 +55,7 @@ public class Flow extends NetworkComponent {
 	// For keeping track of what we've sent
 	private int idxReceived; // index of last received ACK
 	private int idxSent; // index of last sent packet
+	private int maxIdxSent;
 	
 	/**
 	 * @param src The source IP
@@ -70,12 +75,13 @@ public class Flow extends NetworkComponent {
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
 		
 		// Set up the window algorithm
-		setupAlg("Simple");
+		setupAlg(alg_name);
 		
 		// Set up tracking of where we are in the flow
 		this.idxReceived = -1;
 		this.idxSent = -1;
 		this.dupACKcount = 0;
+		this.maxIdxSent = 1;
 		
 		this.lastRTT = TIMEOUT;
 		this.RTTcounter = start_at;
@@ -90,27 +96,26 @@ public class Flow extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
-//		DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Recieved", System.currentTimeMillis(),
-//				this.idxReceived);
-//		DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
-//				this.idxSent);
-//		DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
-//				this.alg.getW());
-		
 		while (!super.receivedStop()) {
+			// graph some things
+			for (DataCaptureTool dc : getDataCollectors()) {
+				
+				dc.setMax(this, "Index Sent", this.maxIdxSent);
+				dc.setMax(this, "Index Received", this.maxIdxSent);
+				dc.addData(this, "Index Sent", System.currentTimeMillis(), this.idxSent);
+				dc.addData(this, "Index Received", System.currentTimeMillis(), this.idxReceived);
+				dc.addData(this, "Window Size", System.currentTimeMillis(), this.alg.getW());
+			}
+			
 			// keep going if we're done with our flow, because others
 			// may not be
 			if (this.idxSent >= 0) { // make sure we've sent at least one
 				if (System.currentTimeMillis() > lastSentTime + TIMEOUT) {
 					// detected dropped packet by timeout
 					alg.droppedPacket(false);
-					DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
-							this.alg.getW());
 					// Assume all our packets sent so far were in vain. Reset:
 					this.idxSent = this.idxReceived;
 					this.dupACKcount = 0;
-					DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
-							this.idxSent);
 				}
 			}
 			
@@ -121,7 +126,7 @@ public class Flow extends NetworkComponent {
 			}
 			
 			try {
-				Thread.sleep(500); // don't try this too often
+				Thread.sleep(FLOW_SLEEP); // don't try this too often
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -155,19 +160,27 @@ public class Flow extends NetworkComponent {
 		if ((this.start_at < System.currentTimeMillis()) && // head start over
 			(!this.finished()) && // haven't sent all the packets yet
 			(this.idxReceived + alg.getW() > this.idxSent)) { // haven't sent all the packets in this window yet
-			// print some stuff
-			System.out.println("Sending packet " + (this.idxSent + 1));
-			// increment the index that we've sent at
 			this.idxSent++;
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
-					this.idxSent);
 			
-//			System.out.println("window size: " + alg.getW() +
-//					   "\t num recieved: " + idxReceived + 
-//					   "\t num sent: " + idxSent);
+			if (this.idxReceived + 1 == this.idxSent) {
+				// Start of the new window
+				this.lastSentTime = System.currentTimeMillis();
+			}
+			
+			// print some stuff
+			if (NetworkSimulator.PRINT_FLOW_STUFF) {
+				System.out.println("Sending packet " + (this.idxSent + 1));
+			}
+			// increment the index that we've sent at
+			this.maxIdxSent = Math.max(maxIdxSent, idxSent);
+			
+			if (FLOW_DEBUG) {
+				System.out.println("Giving packet. window size: " + alg.getW() +
+					   "\t num recieved: " + idxReceived + 
+					   "\t num sent: " + idxSent);
+			}
 			
 			// create and return that packet
-			lastSentTime = System.currentTimeMillis();
 			return new Packet(this.src, this.dest, "DOOM", this.idxSent, this.getComponentName());
 		}
 		return null;
@@ -189,31 +202,24 @@ public class Flow extends NetworkComponent {
 			if (p.getSeqNum() == this.idxReceived + 1) {
 				// New estimate for RTT
 				this.lastRTT = (System.currentTimeMillis() - p.getSentTime());
+				System.out.println("Last RTT: " + this.lastRTT);
 				// Next packet in the sequence: an ACK! Inform the window algorithm
 				alg.ACKPacket(p);
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
-						this.alg.getW());
 				// Reset the dupACK counter
 				dupACKcount = 0;
 				// Can now send more packets
 				idxReceived++;
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Recieved", System.currentTimeMillis(),
-						this.idxReceived);
 			} else if (p.getSeqNum() == this.idxReceived) {
 				// start of a dupACK trail
 				dupACKcount++;
 				
 				if (dupACKcount >= 3) { // too many dupACKs => a dropped packet
 					alg.droppedPacket(true);
-					DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
-							this.alg.getW());
 					// Assume all our packets sent so far were in vain. Reset:
 					if (alg.FR) {
 						this.idxSent = this.idxReceived;
 					}
 					this.dupACKcount = 0;
-					DataCaptureToolHelper.addData(getDataCollectors(), this, "Index Sent", System.currentTimeMillis(),
-							this.idxSent);
 				}
 			} else { // From some other weird place in the sequence
 				// Ignore this.
@@ -225,9 +231,11 @@ public class Flow extends NetworkComponent {
 				System.currentTimeMillis() - p.getSentTime());
 		
 		// Print some things
-//		System.out.println("window size: " + alg.getW() +
-//						   "\t num recieved: " + idxReceived + 
-//						   "\t num sent: " + idxSent);
+		if (FLOW_DEBUG) {
+			System.out.println("Got packet. window size: " + alg.getW() +
+						   "\t num recieved: " + idxReceived + 
+						   "\t num sent: " + idxSent);
+		}
 		
 		
 	}

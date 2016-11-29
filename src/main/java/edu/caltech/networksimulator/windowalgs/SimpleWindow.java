@@ -20,13 +20,12 @@ public class SimpleWindow extends WindowAlgorithm {
 
 	@Override
 	public void ACKPacket(Packet p) {
-		// Simply increment by one.
-		this.window++;
 	}
 
 	@Override
 	public void newRTT() {
-		return;
+		// increment by 1 every RTT
+		this.window++;
 	}
 
 }

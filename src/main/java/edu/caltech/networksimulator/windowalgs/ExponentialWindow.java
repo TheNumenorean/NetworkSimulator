@@ -26,7 +26,6 @@ public class ExponentialWindow extends WindowAlgorithm{
 
 	@Override
 	public void newRTT() {
-		this.window *= 2;
 	}
 
 }

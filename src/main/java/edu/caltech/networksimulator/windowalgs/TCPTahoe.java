@@ -20,12 +20,15 @@ public class TCPTahoe extends WindowAlgorithm{
 		window = 1.0;
 		phase = Phase.SLOW_START;
 		this.FR = true;
+		ssthresh = 1000;
 	}
 
 	@Override
 	public void droppedPacket(boolean dupACK) {
+		System.out.println("\t\t\t\t\t\t Dropped Packet");
 		ssthresh = Math.max((int) (window/2.0), 2);
 		window = 1;
+		phase = Phase.SLOW_START;
 	}
 
 	@Override
@@ -42,14 +45,7 @@ public class TCPTahoe extends WindowAlgorithm{
 
 	@Override
 	public void newRTT() {
-		if (phase == Phase.SLOW_START) {
-			window *= 2.0;
-			checkPhase();
-		} else if (phase == Phase.CONG_AVOID) {
-			window++;
-		} else {
-			throw new NetworkException("Window algorithm phase unrecognized");
-		}
+		printStuff();
 	}
 	
 	private void checkPhase() {
@@ -62,5 +58,14 @@ public class TCPTahoe extends WindowAlgorithm{
 	// getter for the window size
 	public int getW() {
 		return (int) window;
+	}
+	
+	private void printStuff() {
+		if (phase == Phase.SLOW_START) {
+			System.out.println("RTT. Phase: SLOW START.");
+		} else if (phase == Phase.CONG_AVOID) {
+			System.out.println("RTT. Phase: CONG AVOID.");
+		}
+		System.out.println("w: " + getW() + " ssthresh: " + ssthresh);
 	}
 }
