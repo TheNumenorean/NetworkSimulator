@@ -46,10 +46,10 @@ public class Graph extends JComponent {
 
 		colors = new LinkedList<Color>();
 
-		colors.add(Color.GREEN);
+		colors.add(Color.GREEN.darker());
 		colors.add(Color.BLUE);
 		colors.add(Color.RED);
-		colors.add(Color.CYAN);
+		colors.add(Color.CYAN.darker());
 		colors.add(Color.DARK_GRAY);
 		colors.add(Color.GRAY);
 		colors.add(Color.LIGHT_GRAY);
@@ -93,8 +93,6 @@ public class Graph extends JComponent {
 			axisLabel.setColor(name, line.c);
 			data.put(name, line);
 			legend.addLabel(line.c, name);
-
-			invalidate();
 		}
 
 		return line;
