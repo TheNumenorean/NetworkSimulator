@@ -3,9 +3,8 @@
  */
 package edu.caltech.networksimulator.datacapture.graphical;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -15,13 +14,12 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 
 import edu.caltech.networksimulator.NetworkComponent;
 import edu.caltech.networksimulator.datacapture.DataCaptureTool;
@@ -115,9 +113,6 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			components.put(n.getComponentName(), list);
 			getContentPane().add(list);
 			
-			// Create spacing between components
-			getContentPane().add(Box.createRigidArea(new Dimension(5,5)));
-			
 			validate();
 		}
 
@@ -138,6 +133,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 	public void setMax(NetworkComponent n, String dataName, double value) {
 		getComponentContainer(n).g.setMaxValue(dataName, value);
 	}
+	
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		for(Entry<String, NetworkComponentContainer> comp : components.entrySet())
@@ -153,29 +149,29 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		private long dataRange;
 		public Graph g;
 		public Legend legend;
+		public AxisLabel axisLabel;
 
 		
 		public NetworkComponentContainer(String name) {
+			
+			Border inside = BorderFactory.createLineBorder(Color.GRAY, 2);
+			Border outside  = BorderFactory.createEmptyBorder(5, 5, 5, 5);
 
-			this.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-			this.setBackground(Color.GREEN);
+			this.setBorder(BorderFactory.createCompoundBorder(outside, inside));
 
-			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+			setLayout(new BorderLayout());
 			
 			dataRange = DEFAULT_DATA_RANGE;
-
-			add(new JLabel(name));
-
-
+			
 			legend = new Legend();
-			legend.setMaximumSize(new Dimension(GRAPH_WIDTH, 100));
+			axisLabel = new AxisLabel();
+			g = new Graph(dataRange, legend, axisLabel);
 			
-			g = new Graph(legend, dataRange);
-			g.setMaximumSize(new Dimension(GRAPH_WIDTH, GRAPH_HEIGHT));
-			g.setMinimumSize(new Dimension(GRAPH_WIDTH, GRAPH_HEIGHT));
-			this.add(g);
-			
-			this.add(legend);
+
+			add(new JLabel(name), BorderLayout.NORTH);
+			add(g, BorderLayout.CENTER);
+			add(axisLabel, BorderLayout.EAST);
+			add(legend, BorderLayout.SOUTH);
 		}
 
 		@Override
