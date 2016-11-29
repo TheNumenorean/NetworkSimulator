@@ -43,6 +43,9 @@ public class AxisLabel extends JComponent {
 		if(tmp == null) {
 			tmp = new Label(name);
 			labels.put(name, tmp);
+			
+			add(tmp);
+			invalidate();
 		}
 		
 		return tmp;

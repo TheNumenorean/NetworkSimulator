@@ -64,6 +64,7 @@ public class Graph extends JComponent {
 
 	public void setMaxValue(String dataName, double value) {
 		getDataLine(dataName).maxValue = value;
+		axisLabel.setMax(dataName, value);
 	}
 
 	public void addValue(String dataName, long time, double value) {
@@ -78,6 +79,7 @@ public class Graph extends JComponent {
 
 	public void setLineColor(String dataName, Color c) {
 		getDataLine(dataName).c = c;
+		axisLabel.setColor(dataName, c);
 	}
 
 	public void setDataSmoothingRange(String dataName, int smoothingRange) {
@@ -87,7 +89,8 @@ public class Graph extends JComponent {
 	private DataLine getDataLine(String name) {
 		DataLine line = data.get(name);
 		if (line == null) {
-			line = new DataLine(colors.poll(), dataRange);
+			line = new DataLine(name, colors.poll(), dataRange);
+			axisLabel.setColor(name, line.c);
 			data.put(name, line);
 			legend.addLabel(line.c, name);
 
@@ -116,19 +119,29 @@ public class Graph extends JComponent {
 		
 		private List<Double> smoothing;
 
-		public int smoothingRange;
 		public Color c;
+		public int smoothingRange;
 		public long timeRange;
 
 		private double maxValue;
 
+		private String name;
+
 		/**
 		 * Creates a new data line with the given color
+		 * @param name 
 		 * 
 		 * @param color
 		 */
-		public DataLine(Color color, long timeRange) {
-
+		public DataLine(String name, Color c, long timeRange) {
+			
+			this.c = c;
+			this.timeRange = timeRange;
+			this.name = name;
+			
+			maxValue = Double.MIN_VALUE;
+			smoothingRange = 1;
+			
 			smoothing = new ArrayList<Double>();
 			
 			// Store values in reverse order
@@ -140,11 +153,7 @@ public class Graph extends JComponent {
 				}
 
 			});
-			c = color;
-			this.timeRange = timeRange;
 
-			maxValue = Double.MIN_VALUE;
-			smoothingRange = 1;
 		}
 
 		public void addValue(long time, double value) {
@@ -162,8 +171,10 @@ public class Graph extends JComponent {
 				tot = tot / smoothingRange;
 				
 				values.put(time, tot);
-				if (tot > maxValue)
+				if (tot > maxValue) {
 					maxValue = tot;
+					axisLabel.setMax(name, tot);
+				}
 			}
 
 		}
