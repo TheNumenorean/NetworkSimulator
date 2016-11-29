@@ -5,6 +5,9 @@ package edu.caltech.networksimulator.datacapture.graphical;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,6 +17,7 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -44,7 +48,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
-		this.setSize(700, 700);
+		this.setSize(800, 800);
 		
 		this.addMouseWheelListener(this);
 
@@ -159,7 +163,9 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 
 			this.setBorder(BorderFactory.createCompoundBorder(outside, inside));
 
-			setLayout(new BorderLayout());
+			setLayout(new GridBagLayout());
+			
+			GridBagConstraints c = new GridBagConstraints();
 			
 			dataRange = DEFAULT_DATA_RANGE;
 			
@@ -168,10 +174,41 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			g = new Graph(dataRange, legend, axisLabel);
 			
 
-			add(new JLabel(name), BorderLayout.NORTH);
-			add(g, BorderLayout.CENTER);
-			add(axisLabel, BorderLayout.EAST);
-			add(legend, BorderLayout.SOUTH);
+			c.gridx = 0;
+			c.gridy = 1;
+			add(Box.createRigidArea(new Dimension(10, 10)), c);
+			
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 0;
+			c.weighty = 0.1;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			add(new JLabel(name), c);
+			
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 1;
+			c.weightx = 1;
+			c.weighty = 1;
+			c.fill = GridBagConstraints.BOTH;
+			add(g, c);
+			
+			c = new GridBagConstraints();
+			c.gridx = 2;
+			c.gridy = 1;
+			c.weightx = 0.1;
+			c.fill = GridBagConstraints.VERTICAL;
+			add(axisLabel, c);
+			
+			c = new GridBagConstraints();
+			c.gridx = 1;
+			c.gridy = 2;
+			c.weighty = 0.1;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			add(legend, c);
+			
+			validate();
+			
 		}
 
 		@Override

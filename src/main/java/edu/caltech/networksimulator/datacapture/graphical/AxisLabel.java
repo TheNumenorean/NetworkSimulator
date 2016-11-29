@@ -4,12 +4,14 @@
 package edu.caltech.networksimulator.datacapture.graphical;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 /**
  * @author Francesco
@@ -27,15 +29,17 @@ public class AxisLabel extends JComponent {
 		this.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
+		this.setMinimumSize(new Dimension(100, 100));
+		
 		labels = new TreeMap<String, Label>();
 	}
 	
 	public void setMax(String name, double max) {
-		getLabel(name).max = max;
+		getLabel(name).setMax(max);
 	}
 	
 	public void setColor(String name, Color c) {
-		getLabel(name).c = c;
+		getLabel(name).setColor(c);
 	}
 	
 	private Label getLabel(String name) {
@@ -44,8 +48,9 @@ public class AxisLabel extends JComponent {
 			tmp = new Label(name);
 			labels.put(name, tmp);
 			
-			add(tmp);
-			invalidate();
+			this.add(tmp);
+			revalidate();
+			repaint();
 		}
 		
 		return tmp;
@@ -54,14 +59,31 @@ public class AxisLabel extends JComponent {
 	private class Label extends JComponent {
 		
 		private String name;
-		
-		public double max;
-		public Color c;
+		private double max;
+		private Color c;
+
+		private JLabel l;
 		
 		public Label(String name) {
 			this.name = name;
 			
+			this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			
+			l = new JLabel(name);
+			this.add(l);
+			
+//			this.setMinimumSize(new Dimension(100, 50));
+//			this.setMaximumSize(new Dimension(100, 50));
+//			this.setPreferredSize(new Dimension(100, 50));
+		}
+		
+		public void setColor(Color c) {
+			this.c = c;
+			l.setForeground(c);
+		}
+		
+		public void setMax(double d) {
+			l.setText(name + ": " + d);
 		}
 		
 		@Override
@@ -69,8 +91,6 @@ public class AxisLabel extends JComponent {
 			super.paintComponent(g);
 			
 			g.setColor(c);
-			
-			g.fillRect(0, 0, 10, 10);
 		}
 		
 	}
