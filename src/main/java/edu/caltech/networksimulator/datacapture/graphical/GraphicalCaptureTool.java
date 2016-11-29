@@ -186,4 +186,9 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 
 	}
 
+	@Override
+	public void setDataSmoothingRange(NetworkComponent n, String dataName, int smoothingRange) {
+		getComponentContainer(n).g.setDataSmoothingRange(dataName, smoothingRange);
+	}
+
 }

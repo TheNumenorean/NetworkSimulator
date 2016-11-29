@@ -36,7 +36,7 @@ public class Link extends NetworkComponent {
 	private static final String DROPPED_LINE_NAME = "Dropped Rate";
 	private static final String BUFFER_LINE_NAME = "Buffer size (% capacity)";
 	
-	private static final int DATA_HIST_SIZE = 10;
+	private static final int DATA_HIST_SIZE = 50;
 
 	private int sentPackets, droppedPackets;
 	
@@ -110,6 +110,9 @@ public class Link extends NetworkComponent {
 			dc.setMax(this, SENT_LINE_NAME, this.capacity);
 			dc.setMax(this, DROPPED_LINE_NAME, 1);
 			dc.setMax(this, BUFFER_LINE_NAME, bufferSize);
+			
+			dc.setDataSmoothingRange(this, SENT_LINE_NAME, DATA_HIST_SIZE);
+			dc.setDataSmoothingRange(this, DROPPED_LINE_NAME, DATA_HIST_SIZE);
 		}
 
 		int linkState = IDLE;
