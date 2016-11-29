@@ -102,8 +102,8 @@ public class Link extends NetworkComponent {
 		int linkState = IDLE;
 		while (!super.receivedStop()) {
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
-					currentSize);
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
+					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 
 			// Try to get another sendable. if fails, allow loop to start again
 			Sendable next;
@@ -162,6 +162,9 @@ public class Link extends NetworkComponent {
 			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
 					next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
+					currentSize);
 
 		}
 
