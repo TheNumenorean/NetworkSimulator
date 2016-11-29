@@ -29,8 +29,10 @@ public class TCPReno extends WindowAlgorithm{
 			// exit FR/FR after a RTT
 			phase = RenoPhase.CONG_AVOID;
 		} else if (phase == RenoPhase.SLOW_START) {
+			window++;
 			checkPhase();
 		} else if (phase == RenoPhase.CONG_AVOID) {
+			window++;
 		} else {
 			throw new NetworkException("Window algorithm phase unrecognized");
 		}

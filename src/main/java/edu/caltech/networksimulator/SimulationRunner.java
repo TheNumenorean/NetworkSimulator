@@ -31,7 +31,7 @@ public class SimulationRunner {
 			}
 		} else
 			// Congestion algs to choose from: Static, Simple, Exponential, TCPTahoe, TCPReno
-			setupCase(0, sim, "TCPReno", gct);
+			setupCase(0, sim, "TCPFAST", gct);
 		// run the simulation
 		sim.run();
 
