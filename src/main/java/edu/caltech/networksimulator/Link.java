@@ -36,7 +36,7 @@ public class Link extends NetworkComponent {
 	private int sentPackets, droppedPackets;
 	
 	private long lastPacketDropped, lastPacketSent;
-
+	
 	private NetworkComponent end1, end2;
 
 	// Packets trying to enter a full queue will be dropped
@@ -52,7 +52,7 @@ public class Link extends NetworkComponent {
 	 * @param propagationDelay
 	 *            in milliseconds
 	 * @param bufferSize
-	 *            in bytes (?)
+	 *            in bytes
 	 */
 	public Link(String name, int capacity, long propagationDelay, long bufferSize) {
 		super(name);
@@ -65,6 +65,9 @@ public class Link extends NetworkComponent {
 		sentPackets = 0;
 		droppedPackets = 0;
 		currentSize = 0;
+		
+		lastPacketDropped = 0;
+		lastPacketSent = 0;
 	}
 
 	/**
@@ -86,9 +89,6 @@ public class Link extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
-		
-		lastPacketDropped = System.currentTimeMillis();
-		lastPacketSent = System.currentTimeMillis();
 
 		// Initialize data capture tools
 		for (DataCaptureTool dc : getDataCollectors()) {
@@ -157,9 +157,6 @@ public class Link extends NetworkComponent {
 			next.to.offerPacket(next.packet, this);
 			currentSize -= next.packet.getPacketSize();
 			sentPackets++;
-
-			
-			lastPacketSent = System.currentTimeMillis();
 			
 			if (queue.isEmpty())
 				linkState = IDLE;
@@ -169,6 +166,9 @@ public class Link extends NetworkComponent {
 			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(),
 					currentSize);
+			
+
+			lastPacketSent = System.currentTimeMillis();
 
 		}
 
