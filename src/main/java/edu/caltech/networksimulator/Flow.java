@@ -106,11 +106,6 @@ public class Flow extends NetworkComponent {
 			// graph some things
 			for (DataCaptureTool dc : getDataCollectors()) {
 
-				dc.setMax(this, "Index Sent", this.maxIdxSent);
-				dc.setMax(this, "Index Received", this.maxIdxSent);
-				dc.addData(this, "Index Sent", System.currentTimeMillis(), this.idxSent);
-				dc.addData(this, "Index Received", System.currentTimeMillis(), this.idxReceived);
-
 				// window size
 				dc.addData(this, "Window Size", System.currentTimeMillis(), this.alg.getW());
 
