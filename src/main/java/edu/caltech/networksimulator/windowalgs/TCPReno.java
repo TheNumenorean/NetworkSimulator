@@ -14,6 +14,7 @@ public class TCPReno extends WindowAlgorithm{
 	private double window;
 	private RenoPhase phase;
 	private int ssthresh;
+	private boolean responded = false; // have we responded to a timeout in this window?
 	
 	public TCPReno(String name) {
 		super(name);
@@ -25,6 +26,7 @@ public class TCPReno extends WindowAlgorithm{
 
 	@Override
 	public void newRTT() {
+		responded = false;
 		if (phase == RenoPhase.FAST_RECOVERY) {
 			// exit FR/FR after a RTT
 			phase = RenoPhase.CONG_AVOID;
@@ -48,8 +50,11 @@ public class TCPReno extends WindowAlgorithm{
 			window = ssthresh + 3; // window inflation
 			phase = RenoPhase.FAST_RECOVERY;
 		} else { // round trip timeout
-			window = ssthresh;
-			phase = RenoPhase.SLOW_START;
+			if (!responded) {
+				window = ssthresh;
+				phase = RenoPhase.SLOW_START;
+				responded = true;
+			}
 		}
 	}
 

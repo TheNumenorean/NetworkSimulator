@@ -108,10 +108,17 @@ public class Flow extends NetworkComponent {
 
 				// window size
 				dc.addData(this, "Window Size", System.currentTimeMillis(), this.alg.getW());
-
+				
+				// progress
+				System.out.println(((double) idxReceived) / num_packets);
+				dc.addData(this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
+				dc.setMax(this, "Percent Done", 1);
+				
 				// flow rate
 				dc.setDataSmoothingRange(this, "Flow Rate", 50);
 			}
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Percent Done",
+					System.currentTimeMillis() - (TIMEOUT) / 2, 0);
 
 			if (this.idxSent >= 0) { // make sure we've sent at least one
 				if (System.currentTimeMillis() > lastSentTime + TIMEOUT) {
@@ -124,8 +131,7 @@ public class Flow extends NetworkComponent {
 					this.idxSent = this.idxReceived;
 					this.dupACKcount = 0;
 					this.lastRTT = TIMEOUT;
-//					DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Rate",
-//							System.currentTimeMillis() - (TIMEOUT) / 2, 0);
+
 				}
 
 				if (System.currentTimeMillis() > RTTcounter + lastRTT) {
