@@ -28,6 +28,10 @@ public class Link extends NetworkComponent {
 
 	private static final int IDLE = 0, SENDING_FROM_1 = 1, SENDING_FROM_2 = 2;
 	private static final double DROPPED_FRACTION = 0.0;
+	
+	private static final String SENT_LINE_NAME = "Link Rate";
+	private static final String DROPPED_LINE_NAME = "Dropped Rate";
+	private static final String BUFFER_LINE_NAME = "Buffer size (% capacity)";
 
 	private int sentPackets, droppedPackets;
 	
@@ -89,20 +93,20 @@ public class Link extends NetworkComponent {
 		// Initialize data capture tools
 		for (DataCaptureTool dc : getDataCollectors()) {
 			
-			dc.addData(this, "Sent Packets", System.currentTimeMillis(),
+			dc.addData(this, SENT_LINE_NAME, System.currentTimeMillis(),
 					0);
-			dc.addData(this, "Dropped Packets", System.currentTimeMillis(),
+			dc.addData(this, DROPPED_LINE_NAME, System.currentTimeMillis(),
 					0);
-			dc.addData(this, "Buffer Size", System.currentTimeMillis(), currentSize);
-			//dc.setMax(this, "Sent Packets", 1);
-			//dc.setMax(this, "Dropped Packets", 1);
-			dc.setMax(this, "Buffer Size", bufferSize);
+			dc.addData(this, BUFFER_LINE_NAME, System.currentTimeMillis(), currentSize);
+			dc.setMax(this, SENT_LINE_NAME, this.capacity);
+			dc.setMax(this, DROPPED_LINE_NAME, 1);
+			dc.setMax(this, BUFFER_LINE_NAME, bufferSize);
 		}
 
 		int linkState = IDLE;
 		while (!super.receivedStop()) {
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
+			DataCaptureToolHelper.addData(getDataCollectors(), this, DROPPED_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 
 			// Try to get another sendable. if fails, allow loop to start again
@@ -160,10 +164,10 @@ public class Link extends NetworkComponent {
 			if (queue.isEmpty())
 				linkState = IDLE;
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
-					next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
+					1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
+			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(),
 					currentSize);
 
 		}
@@ -190,7 +194,7 @@ public class Link extends NetworkComponent {
 			currentSize += p.getPacketSize();
 		} else {
 			droppedPackets++;
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Dropped Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
+			DataCaptureToolHelper.addData(getDataCollectors(), this, DROPPED_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
 			
 			lastPacketDropped = System.currentTimeMillis();

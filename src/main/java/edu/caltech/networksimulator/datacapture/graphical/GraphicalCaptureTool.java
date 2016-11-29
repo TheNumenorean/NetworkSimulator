@@ -99,7 +99,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		list.addValue(dataName, time, value);
 	}
 
-	private NetworkComponentContainer getComponentContainer(NetworkComponent n) {
+	private synchronized NetworkComponentContainer getComponentContainer(NetworkComponent n) {
 		NetworkComponentContainer list = components.get(n.getComponentName());
 		if (list == null) {
 			list = new NetworkComponentContainer(n.getComponentName());
