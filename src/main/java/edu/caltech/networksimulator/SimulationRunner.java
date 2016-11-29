@@ -72,17 +72,17 @@ public class SimulationRunner {
 
 	public static void setupCase1(NetworkSimulator sim) {
 		// make links
-		Link l0 = new Link("Link0", 12500000, 10, 64000);
+		Link l0 = new Link("Link0", 12500000, 10, 6400);
 		sim.addComponent(l0);
-		Link l1 = new Link("Link1", 10000000, 10, 64000);
+		Link l1 = new Link("Link1", 10000000, 10, 6400);
 		sim.addComponent(l1);
-		Link l2 = new Link("Link2", 10000000, 10, 64000);
+		Link l2 = new Link("Link2", 10000000, 10, 6400);
 		sim.addComponent(l2);
-		Link l3 = new Link("Link3", 10000000, 10, 64000);
+		Link l3 = new Link("Link3", 10000000, 10, 6400);
 		sim.addComponent(l3);
-		Link l4 = new Link("Link4", 10000000, 10, 64000);
+		Link l4 = new Link("Link4", 10000000, 10, 6400);
 		sim.addComponent(l4);
-		Link l5 = new Link("Link5", 12500000, 10, 64000);
+		Link l5 = new Link("Link5", 12500000, 10, 6400);
 		sim.addComponent(l5);
 
 		// Add source
