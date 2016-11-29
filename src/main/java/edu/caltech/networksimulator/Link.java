@@ -94,8 +94,8 @@ public class Link extends NetworkComponent {
 			dc.addData(this, "Dropped Packets", System.currentTimeMillis(),
 					0);
 			dc.addData(this, "Buffer Size", System.currentTimeMillis(), currentSize);
-			//dc.setMax(this, "Sent Packets", 1);
-			//dc.setMax(this, "Dropped Packets", 1);
+			dc.setMax(this, "Sent Packets", this.capacity);
+			dc.setMax(this, "Dropped Packets", 1);
 			dc.setMax(this, "Buffer Size", bufferSize);
 		}
 
@@ -161,7 +161,7 @@ public class Link extends NetworkComponent {
 				linkState = IDLE;
 			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Sent Packets", System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketSent) / 2,
-					next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
+					1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
 			
 			DataCaptureToolHelper.addData(getDataCollectors(), this, "Buffer Size", System.currentTimeMillis(),
 					currentSize);
