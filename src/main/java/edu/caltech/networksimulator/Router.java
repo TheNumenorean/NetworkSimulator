@@ -33,7 +33,7 @@ public class Router extends NetworkComponent implements Addressable {
 	public static final String IDENTITY_REQUEST_HEADER = "HELLO";
 	public static final String IDENTITY_REQUEST_RESPONSE_HEADER = "HI";
 	public static final String ROUTING_PACKET_HEADER = "ROUTING";
-	private static final long ROUTING_DELAY = 2000;
+	private static final long ROUTING_DELAY = 1000;
 
 	// Routing table as map
 	private Map<Long, Routing> routingTable;
@@ -88,7 +88,6 @@ public class Router extends NetworkComponent implements Addressable {
 		System.out.println("Router " + this + " successfully completed pinging local links");
 
 		while (!this.receivedStop()) {
-
 			for (NetworkComponent link : switchLinks.values()) {
 				
 			// Only send out routing packets if we have a routing table
@@ -101,11 +100,7 @@ public class Router extends NetworkComponent implements Addressable {
 				}
 
 				Packet broadcast = new Packet(ip, -1, payload);
-				
-				System.out.println(broadcast);
-
 					link.offerPacket(broadcast, this);
-				
 			}
 			}
 

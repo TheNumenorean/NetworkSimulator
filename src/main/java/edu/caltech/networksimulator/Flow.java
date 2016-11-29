@@ -35,13 +35,16 @@ public class Flow extends NetworkComponent {
 	private static final long TIMEOUT = 500;
 	private long lastSentTime; // time of last sent packet
 	
+	// Some algorithms do things every RTT
+	private long lastRTT; // length of last RTT
+	private long RTTcounter; // last time we called the RTT operation
+	
 	// detecting dupACKs
 	private int dupACKcount;
 	
 	// For keeping track of what we've sent
 	private int idxReceived; // index of last received ACK
 	private int idxSent; // index of last sent packet
-
 	
 	/**
 	 * @param src The source IP
@@ -61,12 +64,15 @@ public class Flow extends NetworkComponent {
 		this.num_packets = ((data_size * 1000000) / 1024) + 1;
 		
 		// Set up the window algorithm
-		setupAlg("TCPTahoe");
+		setupAlg("TCPReno");
 		
 		// Set up tracking of where we are in the flow
 		this.idxReceived = -1;
 		this.idxSent = -1;
 		this.dupACKcount = 0;
+		
+		this.lastRTT = TIMEOUT;
+		this.RTTcounter = start_at;
 	}
 	
 	/*
@@ -102,6 +108,12 @@ public class Flow extends NetworkComponent {
 				}
 			}
 			
+			if (System.currentTimeMillis() > RTTcounter + lastRTT) {
+				// it's been a while since we informed the alg there was another RTT
+				alg.newRTT();
+				RTTcounter = System.currentTimeMillis();
+			}
+			
 			try {
 				Thread.sleep(500); // don't try this too often
 			} catch (InterruptedException e) {
@@ -120,6 +132,8 @@ public class Flow extends NetworkComponent {
 			this.alg = new SimpleWindow(name);
 		} else if (name.equals("TCPTahoe")) {
 			this.alg = new TCPTahoe(name);
+		} else if (name.equals("TCPReno")) {
+			this.alg = new TCPReno(name);
 		} else {
 			// Static window of size 5
 			this.alg = new StaticWindow("Static", 5);
@@ -165,6 +179,8 @@ public class Flow extends NetworkComponent {
 		if (p.getSeqID().equals(getComponentName())) {
 			// packet meant for us
 			if (p.getSeqNum() == this.idxReceived + 1) {
+				// New estimate for RTT
+				this.lastRTT = (System.currentTimeMillis() - p.getSentTime());
 				// Next packet in the sequence: an ACK! Inform the window algorithm
 				alg.ACKPacket(p);
 				DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(),
