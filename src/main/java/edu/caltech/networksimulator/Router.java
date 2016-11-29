@@ -33,7 +33,7 @@ public class Router extends NetworkComponent implements Addressable {
 	public static final String IDENTITY_REQUEST_HEADER = "HELLO";
 	public static final String IDENTITY_REQUEST_RESPONSE_HEADER = "HI";
 	public static final String ROUTING_PACKET_HEADER = "ROUTING";
-	private static final long ROUTING_DELAY = 2000;
+	private static final long ROUTING_DELAY = 1000;
 
 	// Routing table as map
 	private Map<Long, Routing> routingTable;
@@ -95,7 +95,6 @@ public class Router extends NetworkComponent implements Addressable {
 			}
 
 			for (NetworkComponent link : switchLinks.values()) {
-
 				// Only send out routing packets if we have a routing table
 				if (!routingTable.isEmpty()) {
 					String payload = "ROUTING";
