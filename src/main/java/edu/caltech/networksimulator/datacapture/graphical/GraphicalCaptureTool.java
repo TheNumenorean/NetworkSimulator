@@ -98,6 +98,15 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		NetworkComponentContainer list = getComponentContainer(n);
 		list.addValue(dataName, time, value);
 	}
+	
+	@Override
+	public void setDataSmoothingRange(NetworkComponent n, String dataName, int smoothingRange) {
+		getComponentContainer(n).g.setDataSmoothingRange(dataName, smoothingRange);
+	}
+	
+	public void dontDisplayComponent(NetworkComponent n) {
+		getContentPane().remove(getComponentContainer(n));
+	}
 
 	private synchronized NetworkComponentContainer getComponentContainer(NetworkComponent n) {
 		NetworkComponentContainer list = components.get(n.getComponentName());

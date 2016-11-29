@@ -103,5 +103,7 @@ public interface DataCaptureTool {
 	 * may not use this.
 	 */
 	public void finish();
+	
+	public void setDataSmoothingRange(NetworkComponent n, String dataName, int smoothingRange);
 
 }

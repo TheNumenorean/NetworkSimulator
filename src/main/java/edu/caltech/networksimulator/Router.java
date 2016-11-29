@@ -181,6 +181,9 @@ public class Router extends NetworkComponent implements Addressable {
 
 						Routing newRouting = new Routing(
 								Double.parseDouble(routingElements[1]) + ((Link) n).getBufferFill(), n);
+						
+						assert(newRouting.cost >= 0 );
+						
 						long routingIP = Long.parseLong(routingElements[0]);
 
 						if (!hostLinks.containsKey(routingIP)
