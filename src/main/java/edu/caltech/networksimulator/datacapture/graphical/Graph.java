@@ -35,7 +35,7 @@ public class Graph extends JComponent {
 	 * 
 	 */
 	public Graph(long dataRange, Legend legend, AxisLabel axisLabel) {
-		
+
 		this.dataRange = dataRange;
 		this.legend = legend;
 		this.axisLabel = axisLabel;
@@ -114,7 +114,7 @@ public class Graph extends JComponent {
 	private class DataLine {
 
 		private Map<Long, Double> values;
-		
+
 		private List<Double> smoothing;
 
 		public Color c;
@@ -127,21 +127,22 @@ public class Graph extends JComponent {
 
 		/**
 		 * Creates a new data line with the given color
-		 * @param name 
+		 * 
+		 * @param name
 		 * 
 		 * @param color
 		 */
 		public DataLine(String name, Color c, long timeRange) {
-			
+
 			this.c = c;
 			this.timeRange = timeRange;
 			this.name = name;
-			
+
 			maxValue = Double.MIN_VALUE;
 			smoothingRange = 1;
-			
+
 			smoothing = new ArrayList<Double>();
-			
+
 			// Store values in reverse order
 			values = new TreeMap<Long, Double>(new Comparator<Long>() {
 
@@ -157,21 +158,25 @@ public class Graph extends JComponent {
 		public void addValue(long time, double value) {
 			synchronized (this) {
 				
-				if(smoothing.size() == smoothingRange)
+				if(smoothingRange != 1) {
+
+				if (smoothing.size() == smoothingRange)
 					smoothing.remove(0);
-				
+
 				smoothing.add(value);
-				
+
 				double tot = 0;
-				for(double d : smoothing)
+				for (double d : smoothing)
 					tot += d;
+
+				value = tot / smoothingRange;
+
+				}
 				
-				tot = tot / smoothingRange;
-				
-				values.put(time, tot);
-				if (tot > maxValue) {
-					maxValue = tot;
-					axisLabel.setMax(name, tot);
+				values.put(time, value);
+				if (value > maxValue) {
+					maxValue = value;
+					axisLabel.setMax(name, value);
 				}
 			}
 
@@ -195,8 +200,7 @@ public class Graph extends JComponent {
 			synchronized (this) {
 				for (Entry<Long, Double> dat : values.entrySet()) {
 
-					int newHeight = (int) (Graph.this.getHeight() - 2
-							- dat.getValue() * scalar);
+					int newHeight = (int) (Graph.this.getHeight() - 2 - dat.getValue() * scalar);
 
 					int x = (int) (Graph.this.getWidth() - Graph.this.getWidth()
 							* ((double) (System.currentTimeMillis() - dat.getKey()) / timeRange));
