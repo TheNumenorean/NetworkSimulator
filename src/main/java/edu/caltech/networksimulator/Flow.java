@@ -30,7 +30,7 @@ import edu.caltech.networksimulator.windowalgs.WindowAlgorithm;
  */
 public class Flow extends NetworkComponent {
 
-	private static final boolean FLOW_DEBUG = false;
+	private static final boolean FLOW_DEBUG = true;
 
 	// Where it's going and what the flow is doing
 	private final long src, dest;
@@ -102,7 +102,12 @@ public class Flow extends NetworkComponent {
 	 */
 	@Override
 	public void run() {
+		for (DataCaptureTool dc: getDataCollectors()) { 
+			dc.setMax(this, "Percent Done", 1);
+		}
+		
 		while (!super.receivedStop() && !finished()) {
+			
 			// graph some things
 			for (DataCaptureTool dc : getDataCollectors()) {
 
@@ -111,13 +116,10 @@ public class Flow extends NetworkComponent {
 				
 				// progress
 				dc.addData(this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
-				dc.setMax(this, "Percent Done", 1);
-				
+
 				// flow rate
 				dc.setDataSmoothingRange(this, "Flow Rate", 50);
 			}
-			DataCaptureToolHelper.addData(getDataCollectors(), this, "Percent Done",
-					System.currentTimeMillis() - (TIMEOUT) / 2, 0);
 
 			if (this.idxSent >= 0) { // make sure we've sent at least one
 				if (System.currentTimeMillis() > lastSentTime + TIMEOUT) {
@@ -182,7 +184,7 @@ public class Flow extends NetworkComponent {
 	public Packet getPacket() {
 		if ((this.start_at < System.currentTimeMillis()) && // head start over
 				(!this.finished()) && // haven't sent all the packets yet
-				(this.idxReceived + alg.getW() > this.idxSent)) { // haven't
+				(this.idxReceived + alg.getW() >= this.idxSent)) { // haven't
 																	// sent all
 																	// the
 																	// packets

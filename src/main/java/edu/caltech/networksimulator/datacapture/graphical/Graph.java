@@ -178,6 +178,7 @@ public class Graph extends JComponent {
 					maxValue = value;
 					axisLabel.setMax(name, value);
 				}
+				
 			}
 
 		}

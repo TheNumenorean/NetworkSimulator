@@ -23,10 +23,11 @@ public class TCPFAST extends WindowAlgorithm {
 	
 	public TCPFAST(String name) {
 		super(name);
-		alpha = 20;
-		gamma = 0.2;
+		alpha = 40;
+		gamma = 0.1;
 		window = 10.0;
 		baseRTT = 5000;
+		this.FR = true;
 	}
 
 	@Override
