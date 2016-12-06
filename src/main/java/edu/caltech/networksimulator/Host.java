@@ -139,10 +139,18 @@ public class Host extends NetworkComponent implements Addressable {
 		return ip;
 	}
 
+	/**
+	 * Sets the IP for this host
+	 * @param ip 
+	 */
 	public void setIP(long ip) {
 		this.ip = ip;
 	}
 
+	/**
+	 * Adds a flow to this Host
+	 * @param f
+	 */
 	public void addFlow(Flow f) {
 		this.flow = f;
 	}

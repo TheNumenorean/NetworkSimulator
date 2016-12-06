@@ -14,8 +14,16 @@ package edu.caltech.networksimulator;
  */
 public interface Addressable {
 	
+	/**
+	 * Get the component's MAC adress
+	 * @return
+	 */
 	public long getMACAddress();
 	
+	/**
+	 * Get the components IP address
+	 * @return An IP
+	 */
 	public long getIP();
 
 }

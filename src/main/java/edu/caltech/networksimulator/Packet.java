@@ -31,10 +31,12 @@ public class Packet {
 	private int packetUID;
 	
 	/**
-	 * Creates a new packet with the given source and destination.
-	 * @param src The source IP
+	 * Creates a packet as part of a sequence
+	 * @param src The source of the packet's IP
 	 * @param dest The destination IP
-	 * @param payload The contents of the message
+	 * @param payload The packet payload
+	 * @param sequence_number The sequence number
+	 * @param sequence_id The sequence ID
 	 */
 	public Packet(long src, long dest, String payload, int sequence_number, String sequence_id) {
 		this.src = src;
@@ -46,22 +48,22 @@ public class Packet {
 		packetUID = lastPacketID++;
 	}
 	
+	/**
+	 * Creates a packet that is not part of a sequence
+	 * @param src The src of the packet's IP
+	 * @param dest The destination of the packet's IP
+	 * @param payload The packet payload
+	 */
 	public Packet(long src, long dest, String payload) {
 		this(src, dest, payload, -1, null);
 	}
 
 	/**
-	 * Gets the size of this packet in bytes, caluclated based on the size of the metadata and payload.
+	 * Gets the size of this packet in bytes, depending on whether this packet is an ACK or a regular packet.
 	 * @return The number of bytes this packets contents use
 	 */
-//	public long getPacketSize() {
-//		return (meta.length() + payload.length()) * CHAR_SIZE;
-//	}
 	public long getPacketSize() {
-		if (this.payload.equals("ACK")) {
-			return ACK_SIZE; // acknowledgements are shorter
-		}
-		return PACKET_SIZE; // packets are all a given size
+		return this.payload.equals("ACK") ? ACK_SIZE : PACKET_SIZE;
 	}
 	
 	/**
@@ -125,20 +127,36 @@ public class Packet {
 				" packetUID: " + packetUID + "}";
 	}
 
+	/**
+	 * Get the packet's size in bits
+	 * @return
+	 */
 	public long getPacketSizeBits() {
 		return 8 * getPacketSize();
 	}
 	
+	/**
+	 * Set the time at which the packet was sent
+	 */
 	public void setSentTime() {
 		this.sent_time = System.currentTimeMillis();
 	}
 	
+	/**
+	 * Get a new packet which is the acknowledgement for this packet
+	 * @param seq_num
+	 * @return
+	 */
 	public Packet getACK(int seq_num) {
 		Packet p = new Packet(this.dest, this.src, "ACK", seq_num, this.sequence_id);
 		p.sent_time = this.sent_time;
 		return p;
 	}
 
+	/**
+	 * Return whether this packet is a routing packet
+	 * @return True if it is, otherwise false
+	 */
 	public boolean isRouting() {
 		return payload.startsWith(Router.ROUTING_PACKET_HEADER);
 	}

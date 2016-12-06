@@ -5,6 +5,8 @@ package edu.caltech.networksimulator;
 
 /**
  * @author Francesco
+ * 
+ * An exception class to represent an error that occurs in a simulated network
  *
  */
 public class NetworkException extends RuntimeException {
@@ -18,7 +20,7 @@ public class NetworkException extends RuntimeException {
 	 * 
 	 */
 	public NetworkException() {
-		// TODO Auto-generated constructor stub
+		this("Unknown network exception!");
 	}
 
 	/**
@@ -26,7 +28,6 @@ public class NetworkException extends RuntimeException {
 	 */
 	public NetworkException(String arg0) {
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -34,7 +35,6 @@ public class NetworkException extends RuntimeException {
 	 */
 	public NetworkException(Throwable arg0) {
 		super(arg0);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -43,7 +43,6 @@ public class NetworkException extends RuntimeException {
 	 */
 	public NetworkException(String message, Throwable cause) {
 		super(message, cause);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -54,7 +53,6 @@ public class NetworkException extends RuntimeException {
 	 */
 	public NetworkException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
 		super(message, cause, enableSuppression, writableStackTrace);
-		// TODO Auto-generated constructor stub
 	}
 
 }
