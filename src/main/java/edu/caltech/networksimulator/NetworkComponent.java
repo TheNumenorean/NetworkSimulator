@@ -24,9 +24,7 @@ public abstract class NetworkComponent implements Runnable, Comparable<NetworkCo
 	}
 	
 	private String name;
-	
 	private boolean stop;
-	
 	private List<DataCaptureTool> dataCollectors;
 
 	public NetworkComponent(String name){
@@ -43,6 +41,13 @@ public abstract class NetworkComponent implements Runnable, Comparable<NetworkCo
 		return name;
 	}
 	
+	/**
+	 * Offer this NetworkComponent a packet, to do with as desired.
+	 * 
+	 * This method is not gueranteed to return immediately, but should return  as soon as possible in implementations.
+	 * @param p The packet being offered
+	 * @param n Who is offering
+	 */
 	public abstract void offerPacket(Packet p, NetworkComponent n);
 	
 	/** 
@@ -66,10 +71,18 @@ public abstract class NetworkComponent implements Runnable, Comparable<NetworkCo
 		return stop;
 	}
 	
+	/**
+	 * Adds a data collector to this component 
+	 * @param dct A non-null datacollector implementation
+	 */
 	public void addDataDollector(DataCaptureTool dct) {
 		dataCollectors.add(dct);
 	}
 	
+	/**
+	 * Get a list of all the data collectors this component has
+	 * @return
+	 */
 	public List<DataCaptureTool> getDataCollectors() {
 		return dataCollectors;
 	}

@@ -255,15 +255,29 @@ public class Router extends NetworkComponent implements Addressable {
 		return initialRoutingTableBuilt;
 	}
 
+	/**
+	 * Add a link to this router
+	 * @param l The link to add (must not be null)
+	 */
 	public void addLink(Link l) {
 		connectedLinks.add(l);
 		l.setConnection(this);
 	}
 
+	/**
+	 * Represents a routing for a routing table
+	 * @author Francesco
+	 *
+	 */
 	private class Routing {
 		public double cost;
 		public Link link;
 
+		/**
+		 * Creates a new routing with the given cost and link
+		 * @param cost The cost of the routing
+		 * @param link The link which is routed to
+		 */
 		public Routing(double cost, Link link) {
 			this.cost = cost;
 			this.link = link;

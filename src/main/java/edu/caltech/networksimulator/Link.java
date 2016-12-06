@@ -204,11 +204,6 @@ public class Link extends NetworkComponent {
 	}
 
 	@Override
-	public void stop() {
-		super.stop();
-	}
-
-	@Override
 	public boolean finished() {
 		return queue.isEmpty();
 	}
@@ -266,6 +261,12 @@ public class Link extends NetworkComponent {
 		 */
 		public NetworkComponent to;
 
+		/**
+		 * Creates a new Sendable with the given information
+		 * @param sendNET The time which is the absolute easrliest the packet can arrive
+		 * @param packet The packet to send
+		 * @param to Who to send it to
+		 */
 		public Sendable(long sendNET, Packet packet, NetworkComponent to) {
 			this.sendNET = sendNET;
 			this.packet = packet;
