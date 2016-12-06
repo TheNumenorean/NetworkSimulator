@@ -31,12 +31,12 @@ public class SimulationRunner {
 			}
 		} else
 			// Congestion algs to choose from: Static, Simple, Exponential, TCPTahoe, TCPReno, TCPFAST
-			// setupCase(0, sim, "TCPTahoe", gct);
+			// setupCase(0, sim, "TCPReno", gct);
+			//setupCase(0, sim, "TCPFAST", gct);
+			// setupCase(1, sim, "TCPReno", gct);
 			setupCase(0, sim, "TCPFAST", gct);
-			// setupCase(1, sim, "TCPReno", gct);
-			// setupCase(0, sim, "Simple", gct);
 			
-			// setupCase(1, sim, "TCPReno", gct);
+			//setupCase(2, sim, "Simple", gct);
 		// run the simulation
 		sim.run(); 
 
@@ -194,13 +194,13 @@ public class SimulationRunner {
 		sim.addComponent(sink3);
 		
 		// Add flows
-		Flow f1 = new Flow(1, 4, "Flow1", 35, 10000, alg);
+		Flow f1 = new Flow(1, 4, "Flow1", 35, 500, alg);
 		source1.addFlow(f1);
 		sim.addComponent(f1);
-		Flow f2 = new Flow(2, 5, "Flow2", 15, 20000, alg);
+		Flow f2 = new Flow(2, 5, "Flow2", 15, 10000, alg);
 		source2.addFlow(f2);
 		sim.addComponent(f2);
-		Flow f3 = new Flow(3, 6, "Flow3", 30, 30000, alg);
+		Flow f3 = new Flow(3, 6, "Flow3", 30, 20000, alg);
 		source3.addFlow(f3);
 		sim.addComponent(f3);
 

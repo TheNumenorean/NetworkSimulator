@@ -91,9 +91,11 @@ public class Router extends NetworkComponent implements Addressable {
 
 		// local host links should be 0 (we add in the dynamic cost of the link
 		// upon sending)
+		// add local host links???
 		for (Entry<Long, Link> host : hostLinks.entrySet()) {
-			routingTable.get(host.getKey()).cost = 0;
+			routingTable.put(host.getKey(), new Routing(0, host.getValue()));
 		}
+		
 		initialRoutingTableBuilt = true;
 
 		System.out.println("Router " + this + " successfully completed pinging local links");
@@ -116,6 +118,7 @@ public class Router extends NetworkComponent implements Addressable {
 						}
 
 						Packet broadcast = new Packet(ip, -1, payload);
+						// System.out.println(broadcast + " for link " + link);
 						link.offerPacket(broadcast, this);
 					}
 				}
@@ -125,6 +128,10 @@ public class Router extends NetworkComponent implements Addressable {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}
+			
+			if (NetworkSimulator.PRINT_ROUTING) {
+				printRouting();
 			}
 
 			// quiet down for a bit
@@ -177,8 +184,10 @@ public class Router extends NetworkComponent implements Addressable {
 
 			} else if (p.getPayload().startsWith(ROUTING_PACKET_HEADER)) {
 
-				if (!initialRoutingTableBuilt)
+				if (!initialRoutingTableBuilt) {
+					System.out.println("Not built yet!!!!");
 					return;
+				}
 
 				String reducedPayload = p.getPayload().substring(ROUTING_PACKET_HEADER.length()).trim();
 				for (String routing : reducedPayload.split(" ")) {
@@ -259,6 +268,20 @@ public class Router extends NetworkComponent implements Addressable {
 			this.cost = cost;
 			this.link = link;
 		}
+	}
+	
+	private void printRouting() {
+		String payload = "ROUTING";
+
+		for (Entry<Long, Routing> routing : routingTable.entrySet()) {
+			// dynamically add the link cost
+			payload = payload + " " + routing.getKey() + ":"
+					+ (routing.getValue().cost + routing.getValue().link.getBufferFill());
+		}
+
+		Packet broadcast = new Packet(ip, -1, payload);
+		
+		System.out.println(this + " " + broadcast);
 	}
 
 }

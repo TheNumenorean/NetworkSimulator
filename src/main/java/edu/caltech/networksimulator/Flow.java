@@ -30,7 +30,7 @@ import edu.caltech.networksimulator.windowalgs.WindowAlgorithm;
  */
 public class Flow extends NetworkComponent {
 
-	private static final boolean FLOW_DEBUG = true;
+	private static final boolean FLOW_DEBUG = false;
 
 	// Where it's going and what the flow is doing
 	private final long src, dest;
@@ -42,7 +42,7 @@ public class Flow extends NetworkComponent {
 	private WindowAlgorithm alg;
 
 	// detecting packet timeouts
-	private static final long TIMEOUT = 2000;
+	private long TIMEOUT = 2000;
 	private static final long FLOW_SLEEP = 50;
 	private long lastSentTime; // time of last sent packet
 
@@ -52,6 +52,7 @@ public class Flow extends NetworkComponent {
 
 	// detecting dupACKs
 	private int dupACKcount;
+	private int dupACKnum;
 
 	// For keeping track of what we've sent
 	private int idxReceived; // index of last received ACK
@@ -118,7 +119,7 @@ public class Flow extends NetworkComponent {
 				dc.addData(this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
 
 				// flow rate
-				dc.setDataSmoothingRange(this, "Flow Rate", 50);
+				dc.setDataSmoothingRange(this, "Flow Rate", 10);
 			}
 
 			if (this.idxSent >= 0) { // make sure we've sent at least one
@@ -184,7 +185,7 @@ public class Flow extends NetworkComponent {
 	public Packet getPacket() {
 		if ((this.start_at < System.currentTimeMillis()) && // head start over
 				(!this.finished()) && // haven't sent all the packets yet
-				(this.idxReceived + alg.getW() >= this.idxSent)) { // haven't
+				(this.idxReceived + alg.getW() > this.idxSent)) { // haven't
 																	// sent all
 																	// the
 																	// packets
@@ -200,7 +201,7 @@ public class Flow extends NetworkComponent {
 
 			// print some stuff
 			if (NetworkSimulator.PRINT_FLOW_STUFF) {
-				System.out.println("Sending packet " + (this.idxSent + 1));
+				System.out.println("Sending packet " + (this.idxSent));
 			}
 			// increment the index that we've sent at
 			this.maxIdxSent = Math.max(maxIdxSent, idxSent);
@@ -231,10 +232,11 @@ public class Flow extends NetworkComponent {
 	public void offerPacket(Packet p, NetworkComponent n) {
 		if (p.getSeqID().equals(getComponentName())) {
 			// packet meant for us
-			if (p.getSeqNum() == this.idxReceived + 1) {
-				// Extract the RTT
+			if (p.getSeqNum() == this.idxReceived + 1) { // Correct packet!
+				// Extract the RTT and update the timemout
 				this.lastRTT = (System.currentTimeMillis() - p.getSentTime());
-
+				this.TIMEOUT = Math.max(this.TIMEOUT, this.lastRTT);
+				
 				DataCaptureToolHelper.addData(getDataCollectors(), this, "Flow Rate",
 						System.currentTimeMillis() - (lastRTT) / 2, p.getPacketSizeBits() / (lastRTT));
 
@@ -245,30 +247,34 @@ public class Flow extends NetworkComponent {
 				dupACKcount = 0;
 				// Can now send more packets
 				idxReceived++;
-			} else if (p.getSeqNum() == this.idxReceived) {
+			} else if (p.getSeqNum() == this.dupACKnum) {
 				// start of a dupACK trail
 				dupACKcount++;
 
 				if (dupACKcount >= 3) { // too many dupACKs => a dropped packet
 					alg.droppedPacket(true);
 					// Assume all our packets sent so far were in vain. Reset:
+					this.idxReceived = this.dupACKnum;
 					if (alg.FR) {
 						this.idxSent = this.idxReceived;
 					}
 					this.dupACKcount = 0;
 				}
-			} else { // From some other weird place in the sequence
-				// Ignore this.
+			} else {
+				this.dupACKnum = p.getSeqNum();
+				this.dupACKcount = 0;
+				// From some other weird place in the sequence
+				// Count this as a possible start of a dup ack
 			}
 		}
 
 		// graph some things
 		DataCaptureToolHelper.addData(getDataCollectors(), this, "RTT", System.currentTimeMillis(),
-				System.currentTimeMillis() - p.getSentTime());
+				this.lastRTT);
 
 		// Print some things
 		if (FLOW_DEBUG) {
-			System.out.println("Got packet. window size: " + alg.getW() + "\t num recieved: " + idxReceived
+			System.out.println("Got packet: " + p + " window size: " + alg.getW() + "\t num recieved: " + idxReceived
 					+ "\t num sent: " + idxSent);
 		}
 
