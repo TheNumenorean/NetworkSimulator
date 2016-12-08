@@ -215,17 +215,7 @@ public class Link extends NetworkComponent {
 	
 	@Override
 	public String toString() {
-		if (end1 != null){
-			if (end2 != null) {
-				return "{Name: " + getComponentName() + " end1: " + end1.getComponentName() + " end2: " + end2.getComponentName() + "}";
-			} else { // end2 is null
-				return "{Name: " + getComponentName() + " end1: " + end1.getComponentName() + " end2: " + end2 + "}";
-			}
-		} else if (end2 != null) { // end1 is null
-			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2.getComponentName() + "}";
-		} else { // both ends are null
-			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2 + "}";
-		}
+		return "Link " + getComponentName() + ":" + (end1 != null ? end1.getComponentName() : "NULL") + "<->" + (end2 != null ? end2.getComponentName() : "NULL");
 	}
 	
 	/**
