@@ -42,7 +42,7 @@ public class Flow extends NetworkComponent {
 	private WindowAlgorithm alg;
 
 	// detecting packet timeouts
-	private long TIMEOUT = 2000;
+	private long TIMEOUT = 10000;
 	private static final long FLOW_SLEEP = 50;
 	private long lastSentTime; // time of last sent packet
 
@@ -145,7 +145,7 @@ public class Flow extends NetworkComponent {
 			}
 
 			try {
-				Thread.sleep(FLOW_SLEEP); // don't try this too often
+				Thread.sleep(0, (int) FLOW_SLEEP); // don't try this too often
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

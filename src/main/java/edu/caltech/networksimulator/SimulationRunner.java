@@ -34,7 +34,7 @@ public class SimulationRunner {
 			// setupCase(0, sim, "TCPReno", gct);
 			//setupCase(0, sim, "TCPFAST", gct);
 			// setupCase(1, sim, "TCPReno", gct);
-			setupCase(2, sim, "TCPFAST", gct);
+			setupCase(0, sim, "TCPReno", gct);
 			
 			//setupCase(2, sim, "Simple", gct);
 		// run the simulation
