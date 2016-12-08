@@ -158,10 +158,10 @@ public class Link extends NetworkComponent {
 			
 			// Alright. Now wait for the packet to transmit.
 			System.out.println("size of next packet: " + next.packet.getPacketSizeBits() + " capacity: " + capacity);
-			long capacityWait = (long) Math.ceil(next.packet.getPacketSizeBits() * 1000 / (double) capacity);
-			System.out.println("waiting: " + capacityWait);
+			double capacityWait = (next.packet.getPacketSizeBits() * 1000.0) / (double) capacity;
+			System.out.println("waiting: " + capacityWait * 1000);
 			try {
-				Thread.sleep(capacityWait);
+				Thread.sleep(0, (int) capacityWait * 1000);
 			} catch (InterruptedException e) {
 			}
 
