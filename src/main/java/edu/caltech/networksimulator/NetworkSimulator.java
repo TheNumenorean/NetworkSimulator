@@ -17,7 +17,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureTool;
  */
 public class NetworkSimulator implements Runnable {
 	
-	public static boolean PRINT_ROUTING = false;
+	public static boolean PRINT_ROUTING = true;
 	
 	// Print packets at each destination?
 	public static boolean PRINT_LINK_PACKETS = false;

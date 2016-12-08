@@ -15,18 +15,19 @@ import edu.caltech.networksimulator.Packet;
  */
 public class TCPFAST extends WindowAlgorithm {
 
-	private final int alpha;
+	private final double alpha;
 	private final double gamma;
 	private double window;
-	private long baseRTT;
-	private long RTT;
+	private double baseRTT;
+	private double RTT;
 	
 	public TCPFAST(String name) {
 		super(name);
-		alpha = 100;
-		gamma = 0.5;
-		window = 10.0;
+		alpha = 20.0;
+		gamma = 0.3;
+		window = 1.0;
 		baseRTT = 5000;
+		RTT = 5000;
 		this.FR = true;
 	}
 
@@ -46,7 +47,7 @@ public class TCPFAST extends WindowAlgorithm {
 
 	@Override
 	public void ACKPacket(Packet p) {
-		RTT = System.currentTimeMillis() - p.getSentTime();
+		RTT = (double) System.currentTimeMillis() - p.getSentTime();
 		if (RTT > 0) {
 			baseRTT = Math.min(baseRTT, RTT);
 			// use round trip time of last packet
