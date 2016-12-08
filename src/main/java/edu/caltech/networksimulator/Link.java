@@ -42,7 +42,8 @@ public class Link extends NetworkComponent {
 	// Packets trying to enter a full queue will be dropped
 	private LinkedBlockingQueue<Sendable> queue;
 
-	private long capacity, propagationDelay, bufferSize, bufferUsed;
+	private long capacity, propagationDelay, bufferSize;
+	private Long bufferUsed;
 
 	/**
 	 * @param name
@@ -62,7 +63,7 @@ public class Link extends NetworkComponent {
 
 		queue = new LinkedBlockingQueue<Sendable>();
 
-		bufferUsed = 0;
+		bufferUsed = 0L;
 		lastPacketDropped = 0;
 		lastPacketSent = 0;
 	}
@@ -154,7 +155,10 @@ public class Link extends NetworkComponent {
 			}
 
 			// Having waited, now send
-			bufferUsed = Math.max(bufferUsed - next.packet.getPacketSize(), 0); // Sometimes it goes negative
+			
+			synchronized(bufferUsed) {
+				bufferUsed -= next.packet.getPacketSize();
+			}
 			next.to.offerPacket(next.packet, this);
 			
 			// If nothing else is happening, move back to idle state
@@ -191,7 +195,9 @@ public class Link extends NetworkComponent {
 				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
 			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
-			bufferUsed += p.getPacketSize();
+			synchronized(bufferUsed) {
+				bufferUsed += p.getPacketSize();
+			}
 		} else {
 			DataCaptureToolHelper.addData(getDataCollectors(), this, DROPPED_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
