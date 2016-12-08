@@ -33,10 +33,10 @@ public class TCPFAST extends WindowAlgorithm {
 
 	@Override
 	public void newRTT() {
-		printStuff();
+		//printStuff();
 		double term1 = 2.0 * window;
 		double term2 = ((1.0 - gamma) * window) + (gamma * ((baseRTT / RTT) * window + alpha));
-		System.out.println("terms: " + term1 + " " + term2);
+		//System.out.println("terms: " + term1 + " " + term2);
 		window = Math.min(term1, term2);
 	}
 
