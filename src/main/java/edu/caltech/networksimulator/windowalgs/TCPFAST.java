@@ -24,7 +24,7 @@ public class TCPFAST extends WindowAlgorithm {
 	public TCPFAST(String name) {
 		super(name);
 		alpha = 20.0;
-		gamma = 0.3;
+		gamma = 0.2;
 		window = 1.0;
 		baseRTT = 5000;
 		RTT = 5000;
@@ -33,10 +33,10 @@ public class TCPFAST extends WindowAlgorithm {
 
 	@Override
 	public void newRTT() {
-		printStuff();
+		// printStuff();
 		double term1 = 2.0 * window;
 		double term2 = ((1.0 - gamma) * window) + (gamma * ((baseRTT / RTT) * window + alpha));
-		System.out.println("terms: " + term1 + " " + term2);
+		// System.out.println("terms: " + term1 + " " + term2);
 		window = Math.min(term1, term2);
 	}
 
@@ -60,7 +60,7 @@ public class TCPFAST extends WindowAlgorithm {
 	}
 	
 	private void printStuff() {
-		System.out.println("w: " + window + " baseRTT: " + baseRTT + " RTT: " + RTT);
+		// System.out.println("w: " + window + " baseRTT: " + baseRTT + " RTT: " + RTT);
 	}
 
 }

@@ -90,10 +90,7 @@ public class Link extends NetworkComponent {
 		// Initialize data capture tools
 		for (DataCaptureTool dc : getDataCollectors()) {
 			
-			dc.addData(this, SENT_LINE_NAME, System.currentTimeMillis(),
-					0);
-			dc.addData(this, DROPPED_LINE_NAME, System.currentTimeMillis(),
-					0);
+			dc.addData(this, DROPPED_LINE_NAME, System.currentTimeMillis(), 0);
 			dc.addData(this, BUFFER_LINE_NAME, System.currentTimeMillis(), bufferUsed);
 			dc.setMax(this, SENT_LINE_NAME, this.capacity);
 			dc.setMax(this, DROPPED_LINE_NAME, 1);
@@ -120,14 +117,16 @@ public class Link extends NetworkComponent {
 				continue;
 			}
 
-			// Send data
+			// Send data. If the link is switching directions, we wait for the last packet
+			// to clear by waiting for it to propagate. Otherwise we just wait the time
+			// for the packet's bits to all finish sending (the transmission delay)
 			if (linkState == IDLE) {
 				linkState = next.to.equals(end1) ? SENDING_FROM_2 : SENDING_FROM_1;
 
-				try {
-					Thread.sleep(propagationDelay);
-				} catch (InterruptedException e) {
-				}
+//				try {
+//					Thread.sleep(propagationDelay);
+//				} catch (InterruptedException e) {
+//				}
 
 			} else {
 
@@ -138,19 +137,32 @@ public class Link extends NetworkComponent {
 					linkState = next.to.equals(end1) ? SENDING_FROM_2 : SENDING_FROM_1;
 
 					try {
+						// Sleeping works
+						// System.out.println("Sleeping: " + System.currentTimeMillis());
 						Thread.sleep(propagationDelay);
+						// System.out.println("Slept: " + System.currentTimeMillis());
 					} catch (InterruptedException e) {
 					}
 				} else {
 
-					long capacityWait = next.packet.getPacketSizeBits() / capacity;
-					long minWait = next.sendNET - System.currentTimeMillis();
+					//linkState. capacityWait in milliseconds
+//					long capacityWait = (long) (next.packet.getPacketSizeBits() / (double) capacity) * 1000;
+//					long minWait = next.sendNET - System.currentTimeMillis();
 
-					try {
-						Thread.sleep(Long.max(capacityWait, minWait));
-					} catch (InterruptedException e) {
-					}
+//					try {
+//						Thread.sleep(Long.max(capacityWait, minWait));
+//					} catch (InterruptedException e) {
+//					}
 				}
+			}
+			
+			// Alright. Now wait for the packet to transmit.
+			System.out.println("size of next packet: " + next.packet.getPacketSizeBits() + " capacity: " + capacity);
+			long capacityWait = (long) Math.ceil(next.packet.getPacketSizeBits() * 1000 / (double) capacity);
+			System.out.println("waiting: " + capacityWait);
+			try {
+				Thread.sleep(capacityWait);
+			} catch (InterruptedException e) {
 			}
 
 			// Having waited, now send
@@ -161,13 +173,17 @@ public class Link extends NetworkComponent {
 			if (queue.isEmpty())
 				linkState = IDLE;
 			
+			System.out.println("State: " + linkState + " bits: " + next.packet.getPacketSizeBits());
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis(), 1000.0 * next.packet.getPacketSizeBits() / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			// kilobits per millisecond = megabits per second
+			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis(),
+					(1000.0 * next.packet.getPacketSizeBits()) / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			if (System.currentTimeMillis() - this.lastPacketSent + 1 < 1000) {
+				DataCaptureToolHelper.addData(getDataCollectors(), this, "Time between packets", System.currentTimeMillis(), (System.currentTimeMillis() - this.lastPacketSent + 1));
+			}
+			System.out.println("Rate: " + (1000.0 * next.packet.getPacketSizeBits()) / (System.currentTimeMillis() - this.lastPacketSent + 1));
+			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(), bufferUsed);
 			
-			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(),
-					bufferUsed);
-			
-
 			lastPacketSent = System.currentTimeMillis();
 
 		}
@@ -190,8 +206,8 @@ public class Link extends NetworkComponent {
 			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) && NetworkSimulator.PRINT_LINK_PACKETS || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
-			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
-			bufferUsed += p.getPacketSize();
+			queue.add(new Sendable(0, p, end1.equals(n) ? end2 : end1));
+			bufferUsed = Math.min(bufferUsed + p.getPacketSize(), bufferSize);
 		} else {
 			DataCaptureToolHelper.addData(getDataCollectors(), this, DROPPED_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));

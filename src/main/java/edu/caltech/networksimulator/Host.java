@@ -66,7 +66,6 @@ public class Host extends NetworkComponent implements Addressable {
 			try {
 				Thread.sleep(SLEEP_TIME);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -107,9 +106,7 @@ public class Host extends NetworkComponent implements Addressable {
 				// Send an acknowledgement to the original message made
 				// with the highest sequence number we have gotten so far
 				if (acks.containsKey(id)) { // we have seen flow before
-					Packet ackP = p.getACK(acks.get(id));
-					n.offerPacket(ackP, this);
-					//n.offerPacket(p.getACK(acks.get(id)), this);
+					n.offerPacket(p.getACK(acks.get(id)), this);
 				} // otherwise we pretend packet was dropped.
 
 			} else { // payload is ACK meant for us, inform the flow

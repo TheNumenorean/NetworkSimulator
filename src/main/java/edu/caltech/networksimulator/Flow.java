@@ -173,7 +173,7 @@ public class Flow extends NetworkComponent {
 			this.alg = new TCPFAST(name);
 		} else if (name.equals("Static")) {
 			// Static window of size 5
-			this.alg = new StaticWindow(name, 5);
+			this.alg = new StaticWindow(name, 100);
 		} else {
 			throw new NetworkException("Unrecognized window algorithm");
 		}
