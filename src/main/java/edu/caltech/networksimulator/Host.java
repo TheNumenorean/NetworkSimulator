@@ -6,10 +6,6 @@ package edu.caltech.networksimulator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import edu.caltech.networksimulator.NetworkComponent.ComponentType;
-import edu.caltech.networksimulator.datacapture.DataCaptureTool;
-import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
-
 /**
  * @authors Francesco, Carly
  *
@@ -20,7 +16,7 @@ import edu.caltech.networksimulator.datacapture.DataCaptureToolHelper;
  */
 public class Host extends NetworkComponent implements Addressable {
 
-	private static final long SLEEP_TIME = 10;
+	private static final long SLEEP_TIME = 2;
 	private long macAddress;
 	private long ip;
 	private Link link;
