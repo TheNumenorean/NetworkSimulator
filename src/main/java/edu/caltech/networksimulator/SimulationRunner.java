@@ -34,7 +34,7 @@ public class SimulationRunner {
 			// setupCase(0, sim, "TCPReno", gct);
 			//setupCase(0, sim, "TCPFAST", gct);
 			// setupCase(1, sim, "TCPReno", gct);
-			setupCase(0, sim, "TCPFAST", gct);
+			setupCase(2, sim, "Simple", gct);
 			
 			//setupCase(2, sim, "Simple", gct);
 		// run the simulation
@@ -179,7 +179,7 @@ public class SimulationRunner {
 		source2.setIP(2);
 		sim.addComponent(source2);
 		Host source3 = new Host("Source3", l6, 3000);
-		source1.setIP(3);
+		source3.setIP(3);
 		sim.addComponent(source3);
 		
 		// Add sink
@@ -190,7 +190,7 @@ public class SimulationRunner {
 		sink2.setIP(5);
 		sim.addComponent(sink2);
 		Host sink3 = new Host("Sink3", l8, 3000);
-		sink1.setIP(6);
+		sink3.setIP(6);
 		sim.addComponent(sink3);
 		
 		// Add flows
