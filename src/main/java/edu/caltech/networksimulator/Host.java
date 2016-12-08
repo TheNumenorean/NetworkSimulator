@@ -16,7 +16,7 @@ import java.util.TreeMap;
  */
 public class Host extends NetworkComponent implements Addressable {
 
-	private static final long SLEEP_TIME = 2;
+	private static final long SLEEP_TIME = 50;
 	private long macAddress;
 	private long ip;
 	private Link link;
@@ -60,7 +60,7 @@ public class Host extends NetworkComponent implements Addressable {
 
 			// Don't run too often
 			try {
-				Thread.sleep(SLEEP_TIME);
+				Thread.sleep(0, (int) SLEEP_TIME);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

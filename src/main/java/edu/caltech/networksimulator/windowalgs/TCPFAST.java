@@ -23,7 +23,7 @@ public class TCPFAST extends WindowAlgorithm {
 	
 	public TCPFAST(String name) {
 		super(name);
-		alpha = 20.0;
+		alpha = 5.0;
 		gamma = 0.2;
 		window = 1.0;
 		baseRTT = 5000;
