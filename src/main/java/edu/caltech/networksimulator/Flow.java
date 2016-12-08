@@ -105,6 +105,8 @@ public class Flow extends NetworkComponent {
 	public void run() {
 		for (DataCaptureTool dc: getDataCollectors()) { 
 			dc.setMax(this, "Percent Done", 1);
+			// flow rate
+			dc.setDataSmoothingRange(this, "Flow Rate", 10);
 		}
 		
 		while (!super.receivedStop() && !finished()) {
@@ -117,9 +119,6 @@ public class Flow extends NetworkComponent {
 				
 				// progress
 				dc.addData(this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
-
-				// flow rate
-				dc.setDataSmoothingRange(this, "Flow Rate", 10);
 			}
 
 			if (this.idxSent >= 0) { // make sure we've sent at least one
@@ -148,7 +147,6 @@ public class Flow extends NetworkComponent {
 			try {
 				Thread.sleep(FLOW_SLEEP); // don't try this too often
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
