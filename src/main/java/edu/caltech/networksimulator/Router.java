@@ -59,8 +59,8 @@ public class Router extends NetworkComponent implements Addressable {
 		connectedLinks = new TreeSet<Link>();
 		initialRoutingTableBuilt = false;
 
-		hostLinks = new TreeMap<Long, Link>();
-		switchLinks = new TreeMap<Long, Link>();
+		hostLinks = new ConcurrentSkipListMap<Long, Link>();
+		switchLinks = new ConcurrentSkipListMap<Long, Link>();
 	}
 
 	/*
@@ -98,7 +98,7 @@ public class Router extends NetworkComponent implements Addressable {
 		
 		initialRoutingTableBuilt = true;
 
-		System.out.println("Router " + this + " successfully completed pinging local links");
+		System.out.println("Router " + this + " successfully completed pinging local links: " + routingTable);
 
 		while (!this.receivedStop()) {
 
@@ -176,7 +176,7 @@ public class Router extends NetworkComponent implements Addressable {
 				case HOST:
 					if (!hostLinks.containsKey(p.getSrc())) {
 						hostLinks.put(p.getSrc(), (Link) n);
-						// Hosts directly connected have zero cost (we add the link in later)
+						// Hosts directly connected have zero cost
 						routingTable.put(p.getSrc(), new Routing(0, (Link) n));
 					}
 					break;
@@ -205,13 +205,13 @@ public class Router extends NetworkComponent implements Addressable {
 						// offered one is better.
 
 						Routing newRouting = new Routing(
-								Double.parseDouble(routingElements[1]), (Link) n);
+								Double.parseDouble(routingElements[1]) + ((Link)n).getBufferFill(), (Link) n);
 
 						long routingIP = Long.parseLong(routingElements[0]);
 
 						if (!hostLinks.containsKey(routingIP) && (!routingTable.containsKey(routingIP)
 								|| (routingTable.get(routingIP).cost + routingTable.get(routingIP).link.getBufferFill()
-									> newRouting.cost + newRouting.link.getBufferFill()) )) {
+									> newRouting.cost) )) {
 								// || routingTable.get(routingIP).link.equals(n))) {
 							routingTable.put(routingIP, newRouting);
 						}
@@ -282,6 +282,12 @@ public class Router extends NetworkComponent implements Addressable {
 			this.cost = cost;
 			this.link = link;
 		}
+		
+		@Override
+		public String toString() {
+			return link.toString();
+		}
+		
 	}
 	
 	private void printRouting() {

@@ -42,7 +42,8 @@ public class Link extends NetworkComponent {
 	// Packets trying to enter a full queue will be dropped
 	private LinkedBlockingQueue<Sendable> queue;
 
-	private long capacity, propagationDelay, bufferSize, bufferUsed;
+	private long capacity, propagationDelay, bufferSize;
+	private Long bufferUsed;
 
 	/**
 	 * @param name
@@ -62,7 +63,7 @@ public class Link extends NetworkComponent {
 
 		queue = new LinkedBlockingQueue<Sendable>();
 
-		bufferUsed = 0;
+		bufferUsed = 0L;
 		lastPacketDropped = 0;
 		lastPacketSent = 0;
 	}
@@ -166,7 +167,10 @@ public class Link extends NetworkComponent {
 			}
 
 			// Having waited, now send
-			bufferUsed = Math.max(bufferUsed - next.packet.getPacketSize(), 0); // Sometimes it goes negative
+			
+			synchronized(bufferUsed) {
+				bufferUsed -= next.packet.getPacketSize();
+			}
 			next.to.offerPacket(next.packet, this);
 			
 			// If nothing else is happening, move back to idle state
@@ -178,8 +182,8 @@ public class Link extends NetworkComponent {
 			// kilobits per millisecond = megabits per second
 			DataCaptureToolHelper.addData(getDataCollectors(), this, SENT_LINE_NAME, System.currentTimeMillis(),
 					(1000.0 * next.packet.getPacketSizeBits()) / (System.currentTimeMillis() - this.lastPacketSent + 1));
-			if (System.currentTimeMillis() - this.lastPacketSent + 1 < 1000) {
-				DataCaptureToolHelper.addData(getDataCollectors(), this, "Time between packets", System.currentTimeMillis(), (System.currentTimeMillis() - this.lastPacketSent + 1));
+			if (System.currentTimeMillis() - this.lastPacketSent + 1 < 100) {
+				//DataCaptureToolHelper.addData(getDataCollectors(), this, "Time between packets", System.currentTimeMillis(), (System.currentTimeMillis() - this.lastPacketSent + 1));
 			}
 			System.out.println("Rate: " + (1000.0 * next.packet.getPacketSizeBits()) / (System.currentTimeMillis() - this.lastPacketSent + 1));
 			DataCaptureToolHelper.addData(getDataCollectors(), this, BUFFER_LINE_NAME, System.currentTimeMillis(), bufferUsed);
@@ -206,8 +210,10 @@ public class Link extends NetworkComponent {
 			if((NetworkSimulator.PRINT_ROUTING && p.isRouting()) && NetworkSimulator.PRINT_LINK_PACKETS || (!p.isRouting() && NetworkSimulator.PRINT_LINK_PACKETS))
 				System.out.println(getComponentName() + "\t successfully received packet p: " + p + "\t from " + n.getComponentName());
 			// Add the packet to the queue, with the delay as specified
-			queue.add(new Sendable(0, p, end1.equals(n) ? end2 : end1));
-			bufferUsed = Math.min(bufferUsed + p.getPacketSize(), bufferSize);
+			queue.add(new Sendable(System.currentTimeMillis() + propagationDelay, p, end1.equals(n) ? end2 : end1));
+			synchronized(bufferUsed) {
+				bufferUsed += p.getPacketSize();
+			}
 		} else {
 			DataCaptureToolHelper.addData(getDataCollectors(), this, DROPPED_LINE_NAME, System.currentTimeMillis() - (System.currentTimeMillis() - this.lastPacketDropped) / 2,
 					1.0 / (System.currentTimeMillis() - this.lastPacketDropped + 1));
@@ -231,17 +237,7 @@ public class Link extends NetworkComponent {
 	
 	@Override
 	public String toString() {
-		if (end1 != null){
-			if (end2 != null) {
-				return "{Name: " + getComponentName() + " end1: " + end1.getComponentName() + " end2: " + end2.getComponentName() + "}";
-			} else { // end2 is null
-				return "{Name: " + getComponentName() + " end1: " + end1.getComponentName() + " end2: " + end2 + "}";
-			}
-		} else if (end2 != null) { // end1 is null
-			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2.getComponentName() + "}";
-		} else { // both ends are null
-			return "{Name: " + getComponentName() + " end1: " + end1 + " end2: " + end2 + "}";
-		}
+		return "Link " + getComponentName() + ":" + (end1 != null ? end1.getComponentName() : "NULL") + "<->" + (end2 != null ? end2.getComponentName() : "NULL");
 	}
 	
 	/**
