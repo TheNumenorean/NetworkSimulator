@@ -21,13 +21,12 @@ public class Host extends NetworkComponent implements Addressable {
 	private long ip;
 	private Link link;
 	private Flow flow;
-	
 
 	// Stuff for responding to requests
 	// Map between flow IDs and sequence numbers
 	// keeps track of last seen sequence number for each flow
 	private Map<String, Integer> acks;
-	
+
 	/**
 	 * @param name
 	 */
@@ -50,19 +49,24 @@ public class Host extends NetworkComponent implements Addressable {
 		while (!super.receivedStop()) {
 			if (flow != null) {
 				Packet nextPacket = flow.getPacket();
-				//while (nextPacket != null) {
 				if (nextPacket != null) {
 					nextPacket.setSentTime();
 					link.offerPacket(nextPacket, this);
-					//nextPacket = flow.getPacket();
+				} else {
+					try {
+						Thread.sleep(0, (int) SLEEP_TIME);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
-			}
+			} else {
 
-			// Don't run too often
-			try {
-				Thread.sleep(0, (int) SLEEP_TIME);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// Don't run too often
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
@@ -85,20 +89,23 @@ public class Host extends NetworkComponent implements Addressable {
 			if (!(message.equals("ACK"))) { // Message needs an ACK
 				String id = p.getSeqID();
 				int idx = p.getSeqNum();
-				// If this is the next packet in the sequence, increment the sequence number
+				// If this is the next packet in the sequence, increment the
+				// sequence number
 				if (acks.containsKey(id)) { // we have seen this flow before
 					if (acks.get(id) + 1 == idx) { // we got the next packet
 						acks.put(id, idx);
-					} else if (acks.get(id) > idx) { // we thought we got a higher idx than
+					} else if (acks.get(id) > idx) { // we thought we got a
+														// higher idx than
 						// the flow thinks we did
 						acks.put(id, idx);
 					} // otherwise, wasn't the next, so don't update last seen
 				} else { // we have not seen the flow before
 					if (idx == 0) { // start right with the first packet
 						acks.put(id, 0);
-					} // otherwise started with the wrong one, pretend we didn't see it.
+					} // otherwise started with the wrong one, pretend we didn't
+						// see it.
 				}
-				
+
 				// Send an acknowledgement to the original message made
 				// with the highest sequence number we have gotten so far
 				if (acks.containsKey(id)) { // we have seen flow before
@@ -110,8 +117,8 @@ public class Host extends NetworkComponent implements Addressable {
 					flow.offerPacket(p, this);
 				}
 			}
-		} else if(p.getDest() == -1) {
-			if(p.getPayload().startsWith("HELLO")) {
+		} else if (p.getDest() == -1) {
+			if (p.getPayload().startsWith("HELLO")) {
 				n.offerPacket(new Packet(ip, p.getSrc(), "HI " + ComponentType.HOST), this);
 			}
 		}
@@ -134,7 +141,8 @@ public class Host extends NetworkComponent implements Addressable {
 
 	/**
 	 * Sets the IP for this host
-	 * @param ip 
+	 * 
+	 * @param ip
 	 */
 	public void setIP(long ip) {
 		this.ip = ip;
@@ -142,6 +150,7 @@ public class Host extends NetworkComponent implements Addressable {
 
 	/**
 	 * Adds a flow to this Host
+	 * 
 	 * @param f
 	 */
 	public void addFlow(Flow f) {
