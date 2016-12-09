@@ -253,8 +253,8 @@ public class Link extends NetworkComponent {
 	 * @return A double value from 0 to 1
 	 */
 	public double getBufferFill() {
-		if ((((double) bufferUsed) / bufferSize) < 0) {
-			throw new NetworkException("Buffer fill percent is negative???");
+		if (bufferUsed < 0) {
+			throw new NetworkException("Buffer used is negative???");
 		}
 		return ((double) bufferUsed) / bufferSize;
 	}
