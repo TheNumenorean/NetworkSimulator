@@ -51,6 +51,7 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 		this.setSize(800, 800);
 		
 		this.addMouseWheelListener(this);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 	}
 

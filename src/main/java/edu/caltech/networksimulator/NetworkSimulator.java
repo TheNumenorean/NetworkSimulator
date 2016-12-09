@@ -72,7 +72,9 @@ public class NetworkSimulator implements Runnable {
 			dct.start();
 
 		for (NetworkComponent n : networkComponents) {
-			new Thread(n).start();
+			Thread t = new Thread(n);
+			t.setName(n.getComponentName() + "Thread");
+			t.start();
 		}
 
 		new Thread(inputListener).start();
