@@ -93,6 +93,8 @@ public class NetworkSimulator implements Runnable {
 			if (isFinished)
 				break;
 		}
+		
+		System.out.println("Stopping simulation...");
 
 		inputListener.stop();
 
@@ -101,6 +103,9 @@ public class NetworkSimulator implements Runnable {
 		
 		for(DataCaptureTool dct : dataCollectors)
 			dct.finish();
+		
+
+		System.out.println("Simulations finished");
 
 		// Complete calculations, get data and print it, etc.
 	}
