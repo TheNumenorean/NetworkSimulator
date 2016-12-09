@@ -28,6 +28,7 @@ public class AxisLabel extends JComponent {
 		
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		
+		this.setMaximumSize(new Dimension(100, 100));
 		this.setMinimumSize(new Dimension(100, 100));
 		
 		labels = new TreeMap<String, Label>();
@@ -58,7 +59,6 @@ public class AxisLabel extends JComponent {
 	private class Label extends JComponent {
 		
 		private String name;
-		private double max;
 		private Color c;
 
 		private JLabel l;
@@ -68,12 +68,12 @@ public class AxisLabel extends JComponent {
 			
 			this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			
-			l = new JLabel(name);
+			l = new JLabel("<html>" + name + "</html>");
 			this.add(l);
 			
-//			this.setMinimumSize(new Dimension(100, 50));
-//			this.setMaximumSize(new Dimension(100, 50));
-//			this.setPreferredSize(new Dimension(100, 50));
+			this.setMinimumSize(new Dimension(100, 50));
+			this.setMaximumSize(new Dimension(100, 50));
+			this.setPreferredSize(new Dimension(100, 50));
 		}
 		
 		public void setColor(Color c) {
@@ -82,7 +82,7 @@ public class AxisLabel extends JComponent {
 		}
 		
 		public void setMax(double d) {
-			l.setText(name + ": " + d);
+			l.setText("<html>" + name + ": " + d + "</html>");
 		}
 		
 		@Override

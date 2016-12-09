@@ -197,8 +197,6 @@ public class GraphicalCaptureTool extends JFrame implements DataCaptureTool, Act
 			c = new GridBagConstraints();
 			c.gridx = 2;
 			c.gridy = 1;
-			c.weightx = 0.1;
-			c.fill = GridBagConstraints.VERTICAL;
 			add(axisLabel, c);
 			
 			c = new GridBagConstraints();
