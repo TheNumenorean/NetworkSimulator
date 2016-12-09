@@ -6,6 +6,7 @@ package edu.caltech.networksimulator.datacapture.graphical;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Insets;
 import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
@@ -41,6 +42,11 @@ public class AxisLabel extends JComponent {
 	
 	public void setColor(String name, Color c) {
 		getLabel(name).setColor(c);
+	}
+
+	@Override
+	public Insets getInsets() {
+		return new Insets(5, 5, 5, 5);
 	}
 	
 	private Label getLabel(String name) {
