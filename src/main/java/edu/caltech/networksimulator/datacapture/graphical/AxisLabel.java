@@ -30,6 +30,7 @@ public class AxisLabel extends JComponent {
 		
 		this.setMaximumSize(new Dimension(100, 100));
 		this.setMinimumSize(new Dimension(100, 100));
+		this.setPreferredSize(new Dimension(100, 100));
 		
 		labels = new TreeMap<String, Label>();
 	}
@@ -70,10 +71,6 @@ public class AxisLabel extends JComponent {
 			
 			l = new JLabel("<html>" + name + "</html>");
 			this.add(l);
-			
-			this.setMinimumSize(new Dimension(100, 50));
-			this.setMaximumSize(new Dimension(100, 50));
-			this.setPreferredSize(new Dimension(100, 50));
 		}
 		
 		public void setColor(Color c) {
