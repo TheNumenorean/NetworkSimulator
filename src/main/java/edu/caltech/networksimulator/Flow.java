@@ -112,14 +112,8 @@ public class Flow extends NetworkComponent {
 		while (!super.receivedStop() && !finished()) {
 			
 			// graph some things
-			for (DataCaptureTool dc : getDataCollectors()) {
-
-				// window size
-				dc.addData(this, "Window Size", System.currentTimeMillis(), this.alg.getW());
-				
-				// progress
-				dc.addData(this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
-			}
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Window Size", System.currentTimeMillis(), this.alg.getW());
+			DataCaptureToolHelper.addData(getDataCollectors(), this, "Percent Done", System.currentTimeMillis(), ((double) idxReceived) / num_packets);
 
 			if (this.idxSent >= 0) { // make sure we've sent at least one
 				if (System.currentTimeMillis() > lastSentTime + TIMEOUT) {
